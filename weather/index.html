@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css"> 
+    <title>My Weather App</title>
+</head>
+<body>
+    <div class="container mx-auto my-5">
+        <h1 class="text-muted text-center my-4">Mr Weather</h1>
+        <form class="change-location my-4 text-center text-muted">
+            <label for="city">Enter a location for weather information</label>
+            <input type="text" name="city" class="form-control p-4">
+        </form>
+        <div class="card shadow-lg rounded d-none">
+            <img src="https://via.placeholder.com/400x300" class="time card-img">
+                <div class="icon bg-light mx-auto text-center"> 
+                    <img src="">
+                </div>
+                <div class="text-muted text-uppercase text-center details">
+                    <h5 class="my-3">City name</h5>
+                    <div class="my-3">Weather Condition</div>
+                    <div class="display-4 my-4">
+                        <span>temp</span>
+                        <span>&deg;C</span>
+                    </div>
+                </div>
+        </div>
+        <div class="text-center my-4 font-weight-bold h5">Free user </div>
+        <div class="text-center my-4">Please Note That Requests are Limited to 50/day</div>
+    </div>
+    <script src="scripts/forecast.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
