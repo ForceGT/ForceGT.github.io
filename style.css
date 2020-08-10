@@ -191,7 +191,7 @@
     z-index: 100;
     background-color: #090a20;
     position: fixed;
-    width: 100%;
+    max-width: 100%;
   
   }
   
