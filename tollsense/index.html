@@ -402,7 +402,26 @@
       .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
       .panel-tall { justify-content: center; padding-top: clamp(24px, 6vw, 64px); }
 
-      .roadmap-track { --card: 40%; gap: 26px; }
+      /* Roadmap: static row of all three; hover drives the depth focus. */
+      .roadmap-track { overflow: visible; align-items: stretch; gap: 26px; }
+      .roadmap-track::before, .roadmap-track::after { display: none; }
+      .phase { flex: 1 1 0; scroll-snap-align: none; transform: none; opacity: 1; }
+      .phase.is-active {
+        transform: translateY(-8px);
+        border-color: rgba(189,247,91,0.7);
+        box-shadow: 0 0 0 1px rgba(189,247,91,0.4), 0 30px 55px -22px rgba(189,247,91,0.5);
+      }
+      /* Pointing at a card focuses it; the others recede but stay readable. */
+      .roadmap-track:has(.phase:hover) .phase {
+        transform: scale(0.97); opacity: 0.6;
+        border-color: rgba(255,255,255,0.12); box-shadow: none;
+      }
+      .roadmap-track:has(.phase:hover) .phase:hover {
+        transform: translateY(-10px) scale(1.02); opacity: 1;
+        border-color: rgba(189,247,91,0.7);
+        box-shadow: 0 0 0 1px rgba(189,247,91,0.4), 0 30px 55px -22px rgba(189,247,91,0.5);
+      }
+      .dots { display: none; }
     }
 
     /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
@@ -410,6 +429,7 @@
       html { scroll-behavior: auto; }
       .car { animation: none; transform: translateX(0); }
       .wave { animation: none; opacity: 0.55; }
+      .phase { transition: none; }
       .wave.w3 { opacity: 0; }
       .fare { animation: none; opacity: 1; transform: none; }
       .lane { animation: none; }
@@ -688,7 +708,7 @@
       panels.forEach(p => io.observe(p));
     })();
 
-    /* --- Roadmap: auto-advancing depth carousel; swipe is primary --- */
+    /* --- Roadmap: swipe drives focus on mobile; hover drives it on desktop (CSS) --- */
     (function roadmapCarousel() {
       const track = document.getElementById("roadmapTrack");
       if (!track) return;
@@ -704,13 +724,9 @@
         cards.forEach((c, n) => c.classList.toggle("is-active", n === i));
         dots.forEach((d, n) => d.classList.toggle("active", n === i));
       };
-      const goTo = (i, smooth = true) => {
-        const c = cards[i]; if (!c) return;
-        track.scrollTo({ left: centerOf(c) - track.clientWidth / 2,
-                         behavior: smooth && !reduce ? "smooth" : "auto" });
-      };
 
-      // The centred card becomes active as the user (or autoplay) scrolls.
+      // Mobile: the card nearest the centre becomes the focused one as you swipe.
+      // (On desktop the track doesn't scroll — hover takes over, handled in CSS.)
       let raf;
       track.addEventListener("scroll", () => {
         cancelAnimationFrame(raf);
@@ -725,24 +741,12 @@
         });
       }, { passive: true });
 
-      // Autoplay — pauses on interaction, resumes after a short idle.
-      let timer = null, idle = null;
-      const play = () => { if (reduce || timer) return; timer = setInterval(() => goTo((current + 1) % cards.length), 4200); };
-      const stop = () => { clearInterval(timer); timer = null; };
-      const pause = (resumeMs = 6000) => { stop(); clearTimeout(idle); idle = setTimeout(play, resumeMs); };
-      ["pointerdown", "touchstart", "wheel"].forEach(ev => track.addEventListener(ev, () => pause(), { passive: true }));
-      track.addEventListener("mouseenter", () => pause(1e9));
-      track.addEventListener("mouseleave", () => pause(1200));
-      // Dots stay as a secondary, accessible affordance.
-      dots.forEach((d, i) => d.addEventListener("click", () => { goTo(i); pause(); }));
-
-      // Only autoplay while the roadmap panel is actually on screen.
-      const panel = document.getElementById("roadmap");
-      if (panel) {
-        new IntersectionObserver((ents) => ents.forEach(e => {
-          if (e.isIntersecting) { goTo(current, false); play(); } else { stop(); }
-        }), { threshold: 0.5 }).observe(panel);
-      } else { play(); }
+      // Dots are passive position indicators, but stay clickable for accessibility.
+      dots.forEach((d, i) => d.addEventListener("click", () => {
+        const c = cards[i]; if (!c) return;
+        track.scrollTo({ left: centerOf(c) - track.clientWidth / 2,
+                         behavior: reduce ? "auto" : "smooth" });
+      }));
 
       setActive(0);
     })();
