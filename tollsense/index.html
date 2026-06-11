@@ -343,20 +343,34 @@
     .roadmap-sub { margin: 0 auto; max-width: 40ch; color: rgba(255,255,255,0.78); font-size: clamp(0.98rem, 2.4vw, 1.15rem); }
 
     .roadmap-track {
-      display: flex; gap: 16px; align-items: stretch;
+      --card: 70%;
+      display: flex; gap: 12px; align-items: center;
       overflow-x: auto; scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      scroll-padding: 0 8%; padding: 6px 4px 2px;
+      padding: 40px 0 28px;
     }
     .roadmap-track::-webkit-scrollbar { display: none; }
-    .phase {
-      flex: 0 0 84%; scroll-snap-align: center;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius); padding: 22px 20px;
-      display: flex; flex-direction: column;
+    /* edge spacers let the first/last card snap to the centre */
+    .roadmap-track::before, .roadmap-track::after {
+      content: ""; flex: 0 0 calc((100% - var(--card)) / 2);
     }
-    .phase:not(.phase-live) { opacity: 0.9; }
-    .phase-live { border-color: rgba(189,247,91,0.6); box-shadow: 0 0 0 1px rgba(189,247,91,0.3), 0 18px 40px -22px rgba(189,247,91,0.45); }
+    .phase {
+      flex: 0 0 var(--card); scroll-snap-align: center;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius); padding: 24px 22px;
+      display: flex; flex-direction: column;
+      transform: scale(0.88); opacity: 0.5;
+      transition: transform .5s cubic-bezier(.22,.61,.36,1), opacity .5s ease,
+                  box-shadow .5s ease, border-color .5s ease;
+      will-change: transform;
+    }
+    /* the centred card lifts forward and takes the lime focus border */
+    .phase.is-active {
+      transform: scale(1) translateY(-10px); opacity: 1;
+      border-color: rgba(189,247,91,0.7);
+      box-shadow: 0 0 0 1px rgba(189,247,91,0.4), 0 30px 55px -22px rgba(189,247,91,0.5);
+      z-index: 2;
+    }
     .phase-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .phase-node {
       flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
@@ -388,14 +402,7 @@
       .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
       .panel-tall { justify-content: center; padding-top: clamp(24px, 6vw, 64px); }
 
-      .roadmap-track { overflow: visible; justify-content: center; gap: 22px; position: relative; }
-      .roadmap-track::before {
-        content: ""; position: absolute; top: 39px; left: 9%; right: 9%; height: 2px;
-        background: linear-gradient(90deg, rgba(189,247,91,0.75), rgba(255,255,255,0.14));
-        z-index: 0;
-      }
-      .phase { flex: 1 1 0; scroll-snap-align: none; position: relative; z-index: 1; }
-      .dots { display: none; }
+      .roadmap-track { --card: 40%; gap: 26px; }
     }
 
     /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
@@ -502,7 +509,7 @@
         </div>
 
         <div class="roadmap-track" id="roadmapTrack">
-          <article class="phase phase-live">
+          <article class="phase phase-live is-active">
             <div class="phase-head">
               <span class="phase-node">1</span>
               <span class="phase-badge live">Live at launch</span>
@@ -681,27 +688,63 @@
       panels.forEach(p => io.observe(p));
     })();
 
-    /* --- Roadmap carousel: sync dots with horizontal scroll (mobile) --- */
-    (function roadmapDots() {
+    /* --- Roadmap: auto-advancing depth carousel; swipe is primary --- */
+    (function roadmapCarousel() {
       const track = document.getElementById("roadmapTrack");
+      if (!track) return;
+      const cards = Array.from(track.querySelectorAll(".phase"));
       const dots = Array.from(document.querySelectorAll("#roadmapDots .dot"));
-      if (!track || !dots.length) return;
-      const cards = Array.from(track.children);
-      const setActive = (i) => dots.forEach((d, n) => d.classList.toggle("active", n === i));
+      if (!cards.length) return;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      let current = 0;
+      const centerOf = (c) => c.offsetLeft + c.clientWidth / 2;
+      const setActive = (i) => {
+        current = i;
+        cards.forEach((c, n) => c.classList.toggle("is-active", n === i));
+        dots.forEach((d, n) => d.classList.toggle("active", n === i));
+      };
+      const goTo = (i, smooth = true) => {
+        const c = cards[i]; if (!c) return;
+        track.scrollTo({ left: centerOf(c) - track.clientWidth / 2,
+                         behavior: smooth && !reduce ? "smooth" : "auto" });
+      };
+
+      // The centred card becomes active as the user (or autoplay) scrolls.
+      let raf;
       track.addEventListener("scroll", () => {
-        const center = track.scrollLeft + track.clientWidth / 2;
-        let best = 0, bestDist = Infinity;
-        cards.forEach((c, n) => {
-          const cc = c.offsetLeft + c.clientWidth / 2;
-          const d = Math.abs(cc - center);
-          if (d < bestDist) { bestDist = d; best = n; }
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const mid = track.scrollLeft + track.clientWidth / 2;
+          let best = 0, bd = Infinity;
+          cards.forEach((c, n) => {
+            const d = Math.abs(centerOf(c) - mid);
+            if (d < bd) { bd = d; best = n; }
+          });
+          if (best !== current) setActive(best);
         });
-        setActive(best);
       }, { passive: true });
-      dots.forEach((d, i) => d.addEventListener("click", () => {
-        const card = cards[i];
-        if (card) track.scrollTo({ left: card.offsetLeft - (track.clientWidth - card.clientWidth) / 2, behavior: "smooth" });
-      }));
+
+      // Autoplay — pauses on interaction, resumes after a short idle.
+      let timer = null, idle = null;
+      const play = () => { if (reduce || timer) return; timer = setInterval(() => goTo((current + 1) % cards.length), 4200); };
+      const stop = () => { clearInterval(timer); timer = null; };
+      const pause = (resumeMs = 6000) => { stop(); clearTimeout(idle); idle = setTimeout(play, resumeMs); };
+      ["pointerdown", "touchstart", "wheel"].forEach(ev => track.addEventListener(ev, () => pause(), { passive: true }));
+      track.addEventListener("mouseenter", () => pause(1e9));
+      track.addEventListener("mouseleave", () => pause(1200));
+      // Dots stay as a secondary, accessible affordance.
+      dots.forEach((d, i) => d.addEventListener("click", () => { goTo(i); pause(); }));
+
+      // Only autoplay while the roadmap panel is actually on screen.
+      const panel = document.getElementById("roadmap");
+      if (panel) {
+        new IntersectionObserver((ents) => ents.forEach(e => {
+          if (e.isIntersecting) { goTo(current, false); play(); } else { stop(); }
+        }), { threshold: 0.5 }).observe(panel);
+      } else { play(); }
+
+      setActive(0);
     })();
   </script>
 
