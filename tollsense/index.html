@@ -335,12 +335,67 @@
     .badge.disabled { opacity: 0.4; cursor: default; }
     .badge.disabled .soon { background: rgba(255,255,255,0.55); }
 
+    /* ---------- Panel: Roadmap ---------- */
+    .roadmap-inner { width: 100%; max-width: var(--maxw); }
+    .roadmap-head { text-align: center; margin: 0 0 30px; }
+    .roadmap-head h2 { font-size: clamp(1.7rem, 5.5vw, 2.7rem); margin: 0 0 10px; letter-spacing: -0.02em; font-weight: 850; }
+    .roadmap-head h2 .hl { color: var(--lime); }
+    .roadmap-sub { margin: 0 auto; max-width: 40ch; color: rgba(255,255,255,0.78); font-size: clamp(0.98rem, 2.4vw, 1.15rem); }
+
+    .roadmap-track {
+      display: flex; gap: 16px; align-items: stretch;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      scroll-padding: 0 8%; padding: 6px 4px 2px;
+    }
+    .roadmap-track::-webkit-scrollbar { display: none; }
+    .phase {
+      flex: 0 0 84%; scroll-snap-align: center;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius); padding: 22px 20px;
+      display: flex; flex-direction: column;
+    }
+    .phase:not(.phase-live) { opacity: 0.9; }
+    .phase-live { border-color: rgba(189,247,91,0.6); box-shadow: 0 0 0 1px rgba(189,247,91,0.3), 0 18px 40px -22px rgba(189,247,91,0.45); }
+    .phase-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .phase-node {
+      flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 850; color: var(--ink); background: var(--lime);
+    }
+    .phase:not(.phase-live) .phase-node { background: rgba(255,255,255,0.18); color: #fff; }
+    .phase-badge {
+      font-size: 0.66rem; font-weight: 850; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 4px 11px; border-radius: 999px;
+      background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.16);
+    }
+    .phase-badge.live { background: rgba(189,247,91,0.16); color: var(--lime); border-color: rgba(189,247,91,0.5); }
+    .phase h3 { margin: 0 0 12px; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; }
+    .phase ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 7px; }
+    .phase li { color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.4; }
+
+    .dots { display: flex; justify-content: center; gap: 9px; margin-top: 22px; }
+    .dots .dot {
+      width: 9px; height: 9px; border-radius: 50%; padding: 0; border: 0; cursor: pointer;
+      background: rgba(255,255,255,0.28); transition: background .2s ease, transform .2s ease;
+    }
+    .dots .dot.active { background: var(--lime); transform: scale(1.25); }
+
     /* ---------- Desktop ---------- */
     @media (min-width: 880px) {
       .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
       .hero-art .scene { max-width: 460px; }
       .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
       .panel-tall { justify-content: center; padding-top: clamp(24px, 6vw, 64px); }
+
+      .roadmap-track { overflow: visible; justify-content: center; gap: 22px; position: relative; }
+      .roadmap-track::before {
+        content: ""; position: absolute; top: 39px; left: 9%; right: 9%; height: 2px;
+        background: linear-gradient(90deg, rgba(189,247,91,0.75), rgba(255,255,255,0.14));
+        z-index: 0;
+      }
+      .phase { flex: 1 1 0; scroll-snap-align: none; position: relative; z-index: 1; }
+      .dots { display: none; }
     }
 
     /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
@@ -432,13 +487,74 @@
           </div>
         </div>
       </div>
+      <a class="scroll-cue" href="#roadmap" aria-label="Scroll down">
+        What's next
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </a>
+    </section>
+
+    <!-- ============ PANEL 3 — Roadmap ============ -->
+    <section class="panel panel-grad" id="roadmap">
+      <div class="roadmap-inner">
+        <div class="roadmap-head">
+          <h2>v1 is just the <span class="hl">start</span>.</h2>
+          <p class="roadmap-sub">Here's the road ahead.</p>
+        </div>
+
+        <div class="roadmap-track" id="roadmapTrack">
+          <article class="phase phase-live">
+            <div class="phase-head">
+              <span class="phase-node">1</span>
+              <span class="phase-badge live">Live at launch</span>
+            </div>
+            <h3>Toll alerts</h3>
+            <ul>
+              <li>Every plaza and its <strong>exact fare</strong>, before you reach it</li>
+              <li>Announced out loud, hands-free</li>
+              <li>Right on your Android Auto screen</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <div class="phase-head">
+              <span class="phase-node">2</span>
+              <span class="phase-badge">Planned</span>
+            </div>
+            <h3>FasTag integration</h3>
+            <ul>
+              <li>Link your FasTag to see your live balance</li>
+              <li>Confirm exactly what each toll deducted</li>
+              <li>No more guessing at the booth</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <div class="phase-head">
+              <span class="phase-node">3</span>
+              <span class="phase-badge">On the roadmap</span>
+            </div>
+            <h3>Automation &amp; auto-recharge</h3>
+            <ul>
+              <li>Auto-checks deductions from your messages</li>
+              <li>Low-balance auto-recharge</li>
+              <li>Trip expense summaries</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="dots" id="roadmapDots" aria-label="Roadmap phases">
+          <button class="dot active" type="button" aria-label="Phase 1"></button>
+          <button class="dot" type="button" aria-label="Phase 2"></button>
+          <button class="dot" type="button" aria-label="Phase 3"></button>
+        </div>
+      </div>
       <a class="scroll-cue" href="#notify" aria-label="Scroll down">
         Get notified
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </a>
     </section>
 
-    <!-- ============ PANEL 3 — Register interest ============ -->
+    <!-- ============ PANEL 4 — Register interest ============ -->
     <section class="panel panel-grad" id="notify">
       <div class="cta-card">
         <div class="cta-copy">
@@ -563,6 +679,29 @@
         entries.forEach(en => en.target.classList.toggle("in-view", en.isIntersecting));
       }, { threshold: 0.35 });
       panels.forEach(p => io.observe(p));
+    })();
+
+    /* --- Roadmap carousel: sync dots with horizontal scroll (mobile) --- */
+    (function roadmapDots() {
+      const track = document.getElementById("roadmapTrack");
+      const dots = Array.from(document.querySelectorAll("#roadmapDots .dot"));
+      if (!track || !dots.length) return;
+      const cards = Array.from(track.children);
+      const setActive = (i) => dots.forEach((d, n) => d.classList.toggle("active", n === i));
+      track.addEventListener("scroll", () => {
+        const center = track.scrollLeft + track.clientWidth / 2;
+        let best = 0, bestDist = Infinity;
+        cards.forEach((c, n) => {
+          const cc = c.offsetLeft + c.clientWidth / 2;
+          const d = Math.abs(cc - center);
+          if (d < bestDist) { bestDist = d; best = n; }
+        });
+        setActive(best);
+      }, { passive: true });
+      dots.forEach((d, i) => d.addEventListener("click", () => {
+        const card = cards[i];
+        if (card) track.scrollTo({ left: card.offsetLeft - (track.clientWidth - card.clientWidth) / 2, behavior: "smooth" });
+      }));
     })();
   </script>
 
