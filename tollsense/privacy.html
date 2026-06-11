@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TollSense — Privacy Policy</title>
+  <meta name="description" content="How the TollSense mobile and Android Auto app handles your information. Location is processed on-device for toll detection — never sold or shared." />
+  <meta name="theme-color" content="#343970" />
+  <style>
+    :root {
+      --navy:#343970; --navy-dark:#2A2E5C; --lime:#BDF75B; --lime-dark:#5b8f1f;
+      --ink:#1E262D; --muted:#5b5b6b; --bg:#f7f8fc; --card:#ffffff; --line:#e6e8f0;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; background:var(--bg); color:var(--ink); line-height:1.65;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    .topbar {
+      background:linear-gradient(155deg,var(--navy) 0%,#6779CA 100%);
+      color:#fff; padding:28px 24px;
+    }
+    .topbar .inner { max-width:760px; margin:0 auto; display:flex; align-items:center; gap:10px; }
+    .topbar a { color:#fff; text-decoration:none; font-weight:800; letter-spacing:-0.02em; display:flex; align-items:center; gap:9px; }
+    .topbar .dot { width:11px; height:11px; border-radius:50%; background:var(--lime); box-shadow:0 0 0 4px rgba(189,247,91,0.25); }
+    .wrap { max-width:760px; margin:0 auto; padding:40px 24px 96px; }
+    .card {
+      background:var(--card); border:1px solid var(--line); border-radius:18px;
+      padding:clamp(24px,5vw,44px); box-shadow:0 24px 50px -32px rgba(52,57,112,0.35);
+    }
+    .pill {
+      display:inline-block; background:rgba(189,247,91,0.22); color:var(--lime-dark);
+      border:1px solid rgba(143,190,63,0.5); border-radius:999px;
+      padding:3px 13px; font-size:.78rem; font-weight:700; letter-spacing:.04em;
+    }
+    h1 { font-size:clamp(1.8rem,5vw,2.4rem); margin:14px 0 4px; letter-spacing:-0.02em; }
+    h2 { font-size:1.18rem; margin:34px 0 8px; color:var(--navy); }
+    .meta { color:var(--muted); font-size:.9rem; margin-bottom:8px; }
+    a { color:var(--navy); }
+    strong { color:var(--ink); }
+    ul { padding-left:1.2em; }
+    li { margin:6px 0; }
+    footer {
+      max-width:760px; margin:0 auto; padding:0 24px 48px;
+      font-size:.85rem; color:var(--muted);
+    }
+    footer .row { border-top:1px solid var(--line); padding-top:18px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="inner"><a href="index.html"><span class="dot"></span>TollSense</a></div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <span class="pill">PRIVACY</span>
+      <h1>Privacy Policy</h1>
+      <p class="meta">Last updated: <strong>11 June 2026</strong></p>
+
+      <p>This Privacy Policy explains how the <strong>TollSense</strong> mobile and Android Auto
+      application ("the App", "we", "us") handles your information. By using the App you agree to
+      the practices described here.</p>
+
+      <h2>1. The short version</h2>
+      <p>TollSense uses your device's location to detect upcoming toll plazas and alert you while
+      you drive. All toll detection and distance calculations happen <strong>on your device</strong>.
+      We do <strong>not</strong> run our own servers, do <strong>not</strong> sell or share your
+      data, and do <strong>not</strong> use advertising or tracking SDKs. Your location never
+      leaves your device.</p>
+
+      <h2>2. Information we access</h2>
+      <ul>
+        <li><strong>Precise location (foreground &amp; background).</strong> Used to compute your
+        distance to toll plazas and to determine when you enter or exit a tolled highway. Location
+        is processed in real time on your device and is not retained beyond what is needed to
+        generate an alert.</li>
+        <li><strong>No account, no personal identifiers.</strong> TollSense does not ask you to
+        sign in and does not collect your name, email, contacts, phone number, or device
+        identifiers.</li>
+      </ul>
+
+      <h2>3. Why we need background location</h2>
+      <p>Toll alerts must work while you are driving and the App is not on screen — for example
+      when Google Maps is in the foreground or your phone is locked. For this reason the App
+      requests background location access and runs a foreground service while monitoring is
+      active. A persistent notification is shown whenever monitoring is running, so you always
+      know when location is in use.</p>
+
+      <h2>4. Data we collect and where it goes</h2>
+      <p>Toll detection and distance calculations happen entirely on your device. We do not store
+      your location on any server we control, and we never sell or share it. Toll plaza and fare
+      data is bundled with the App; it does not include any of your personal or location
+      information.</p>
+
+      <h2>5. Address lookup</h2>
+      <p>To display a human-readable place name (for example, the road or town you are near), the
+      App uses the <strong>geocoding service built into your Android device</strong>. This lookup
+      is handled by the operating system on your device; TollSense does not send your coordinates
+      to any TollSense server or third-party service for this purpose.</p>
+
+      <h2>6. Permissions summary</h2>
+      <ul>
+        <li><strong>Location</strong> — toll detection (described above).</li>
+        <li><strong>Notifications</strong> — to display toll alerts and the monitoring status.</li>
+        <li><strong>Foreground service</strong> — to keep toll monitoring running while driving.</li>
+      </ul>
+
+      <h2>7. Data sharing and selling</h2>
+      <p>We do not share or sell any data, because we do not collect any off-device data to begin
+      with.</p>
+
+      <h2>8. Children</h2>
+      <p>TollSense is intended for drivers and is not directed at children under 13.</p>
+
+      <h2>9. Changes to this policy</h2>
+      <p>We may update this policy as the App evolves. Material changes will be reflected by the
+      "Last updated" date above.</p>
+
+      <h2>10. Contact</h2>
+      <p>Questions about this policy? Email
+      <a href="mailto:thakkargaurav409@gmail.com">thakkargaurav409@gmail.com</a>.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="row">
+      TollSense — developed by Gaurav Thakkar · <a href="index.html">Home</a>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TollSense — Know your toll before you reach it</title>
+  <meta name="description" content="TollSense alerts you to upcoming toll plazas and the exact fare — announced aloud, hands-free, while you drive. Built for Android Auto. Get notified when we launch." />
+  <meta name="theme-color" content="#343970" />
+
+  <!-- Open Graph / social preview (og:image optional; add a PNG later if desired) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="TollSense — Know your toll before you reach it" />
+  <meta property="og:description" content="Proactive toll alerts and the exact fare, announced aloud while you drive. Built for Android Auto." />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <style>
+    :root {
+      --navy:        #343970;
+      --navy-dark:   #2A2E5C;
+      --periwinkle:  #6779CA;
+      --lime:        #BDF75B;
+      --lime-dark:   #8FBE3F;
+      --car-gray:    #DFDEEB;
+      --ink:         #1E262D;
+      --amber:       #FF6F00;
+      --white:       #FFFFFF;
+      --radius:      18px;
+      --maxw:        1080px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--white);
+      background: var(--navy-dark);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ---------- Scroll-snap shell ---------- */
+    .deck {
+      height: 100dvh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .deck::-webkit-scrollbar { display: none; }
+
+    .panel {
+      position: relative;
+      min-height: 100dvh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(24px, 6vw, 64px);
+      overflow: hidden;
+    }
+
+    /* Shared gradient background w/ a soft radial glow */
+    .panel-grad {
+      background:
+        radial-gradient(120% 80% at 80% 0%, rgba(189,247,91,0.14), transparent 55%),
+        linear-gradient(155deg, var(--navy) 0%, var(--periwinkle) 100%);
+    }
+
+    /* Fixed brand wordmark */
+    .brand {
+      position: fixed;
+      top: clamp(16px, 3vw, 24px);
+      left: clamp(16px, 4vw, 32px);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1.05rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .brand .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--lime);
+      box-shadow: 0 0 0 4px rgba(189,247,91,0.25);
+    }
+
+    /* ---------- Panel 1: Hero ---------- */
+    .hero-inner {
+      width: 100%;
+      max-width: var(--maxw);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(28px, 5vw, 56px);
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--lime);
+      background: rgba(189,247,91,0.12);
+      border: 1px solid rgba(189,247,91,0.35);
+      padding: 6px 14px; border-radius: 999px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-size: clamp(2.1rem, 7.5vw, 4rem);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+      margin: 0 0 18px;
+      font-weight: 850;
+    }
+    h1 .hl { color: var(--lime); }
+    .lede {
+      font-size: clamp(1.02rem, 2.6vw, 1.3rem);
+      color: rgba(255,255,255,0.82);
+      max-width: 30ch;
+      margin: 0 0 30px;
+    }
+    .hero-cta { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+    .hero-cta .btn { width: 100%; }
+    @media (min-width: 640px) {
+      .hero-cta { flex-direction: row; flex-wrap: wrap; gap: 14px; align-items: center; }
+      .hero-cta .btn { width: auto; }
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      font-weight: 800; font-size: 1rem;
+      padding: 15px 26px; border-radius: 999px;
+      text-decoration: none; cursor: pointer; border: 0;
+      min-height: 52px; /* touch target */
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn-primary {
+      background: var(--lime); color: var(--ink);
+      box-shadow: 0 10px 30px -8px rgba(189,247,91,0.55);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -8px rgba(189,247,91,0.7); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-ghost {
+      background: transparent; color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.4);
+    }
+    .btn-ghost:hover { border-color: var(--lime); color: var(--lime); }
+
+    .hero-art { display: none; } /* hidden on mobile; revealed on desktop */
+
+    /* Scroll cue */
+    .scroll-cue {
+      position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.6); font-size: 0.78rem; letter-spacing: 0.06em;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      text-decoration: none;
+    }
+    .scroll-cue svg { animation: bob 1.8s ease-in-out infinite; }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+    /* ---------- The animated scene (shared by hero-art + panel 2) ---------- */
+    .scene {
+      width: 100%;
+      max-width: 520px;
+      aspect-ratio: 4 / 3;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .scene svg { width: 100%; height: 100%; display: block; }
+
+    /* Car drives toward the plaza */
+    .car { animation: drive 6s ease-in-out infinite; animation-play-state: paused; }
+    @keyframes drive {
+      0%   { transform: translateX(-150px); }
+      55%  { transform: translateX(0); }
+      72%  { transform: translateX(0); }     /* dwell at the plaza */
+      100% { transform: translateX(380px); }  /* pass through & exit */
+    }
+
+    /* Sensing arcs "light up" as the car nears */
+    .wave { transform-origin: 300px 150px; opacity: 0; animation: ping 6s ease-out infinite; animation-play-state: paused; }
+    .wave.w1 { animation-delay: 0s; }
+    .wave.w2 { animation-delay: .28s; }
+    .wave.w3 { animation-delay: .56s; }
+    @keyframes ping {
+      0%, 30%   { opacity: 0; transform: scale(0.3); }
+      45%       { opacity: 0.9; }
+      70%, 100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    /* Fare alert card pops in when the car is near */
+    .fare { opacity: 0; transform-box: fill-box; transform-origin: center; animation: fare 6s ease-in-out infinite; animation-play-state: paused; }
+    @keyframes fare {
+      0%, 30%   { opacity: 0; transform: translateY(8px) scale(0.96); }
+      42%, 88%  { opacity: 1; transform: translateY(0) scale(1); }
+      96%, 100% { opacity: 0; transform: translateY(8px) scale(0.96); }
+    }
+
+    /* Lane dashes scroll to imply motion */
+    .lane { stroke-dasharray: 26 22; animation: lane 1.4s linear infinite; animation-play-state: paused; }
+    @keyframes lane { to { stroke-dashoffset: -96; } }
+
+    /* Animations run only when the panel is on-screen */
+    .in-view .car,
+    .in-view .wave,
+    .in-view .fare,
+    .in-view .lane { animation-play-state: running; }
+
+    /* ---------- Panel 2 layout ---------- */
+    .stage {
+      width: 100%; max-width: var(--maxw);
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 26px;
+    }
+    .stage h2 {
+      font-size: clamp(1.6rem, 5vw, 2.6rem); margin: 0;
+      letter-spacing: -0.02em; font-weight: 800;
+    }
+    .stage .caption {
+      color: rgba(255,255,255,0.82); max-width: 42ch; margin: 0 auto;
+      font-size: clamp(0.98rem, 2.4vw, 1.15rem);
+    }
+
+    /* ---------- Panel 3: CTA ---------- */
+    .cta-card {
+      width: 100%; max-width: 560px; text-align: center;
+    }
+    .cta-card h2 {
+      font-size: clamp(1.8rem, 6vw, 3rem); margin: 0 0 14px;
+      letter-spacing: -0.025em; font-weight: 850;
+    }
+    .cta-card h2 .hl { color: var(--lime); }
+    .cta-card p.sub { color: rgba(255,255,255,0.82); margin: 0 0 30px; font-size: clamp(1rem, 2.6vw, 1.2rem); }
+
+    form.signup {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.16);
+      padding: 10px; border-radius: 999px;
+      max-width: 480px; margin: 0 auto;
+      transition: border-color .2s ease;
+    }
+    form.signup:focus-within { border-color: var(--lime); }
+    form.signup input[type="email"] {
+      flex: 1 1 200px; min-width: 0;
+      background: transparent; border: 0; outline: none;
+      color: var(--white); font-size: 1.02rem; padding: 12px 18px;
+    }
+    form.signup input::placeholder { color: rgba(255,255,255,0.5); }
+    form.signup button { flex: 0 0 auto; }
+
+    .form-msg {
+      margin: 16px auto 0; min-height: 22px;
+      font-size: 0.95rem; font-weight: 600;
+    }
+    .form-msg.error { color: #ffb4a8; }
+    .form-msg.ok { color: var(--lime); }
+
+    /* Success state */
+    .success { display: none; }
+    .success .check {
+      width: 64px; height: 64px; margin: 0 auto 18px;
+      border-radius: 50%; background: var(--lime); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .signup-wrap.done form.signup,
+    .signup-wrap.done .form-msg { display: none; }
+    .signup-wrap.done .success { display: block; }
+
+    .feature-strip {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+      margin-top: 30px;
+    }
+    .chip {
+      font-size: 0.82rem; font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 7px 14px; border-radius: 999px;
+    }
+
+    footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 18px 24px; text-align: center;
+      font-size: 0.82rem; color: rgba(255,255,255,0.6);
+    }
+    footer a { color: rgba(255,255,255,0.85); text-decoration: none; }
+    footer a:hover { color: var(--lime); }
+
+    /* ---------- Desktop: hero shows the live demo beside the copy ---------- */
+    @media (min-width: 880px) {
+      .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
+      .hero-art { display: flex; justify-content: center; }
+    }
+
+    /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .car { animation: none; transform: translateX(0); }
+      .wave { animation: none; opacity: 0.55; }
+      .wave.w3 { opacity: 0; }
+      .fare { animation: none; opacity: 1; transform: none; }
+      .lane { animation: none; }
+      .scroll-cue svg { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="brand" href="#hero"><span class="dot"></span>TollSense</a>
+
+  <main class="deck">
+
+    <!-- ============ PANEL 1 — Problem + title ============ -->
+    <section class="panel panel-grad" id="hero">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow">● Coming soon to the Play Store</span>
+          <h1>Never get <span class="hl">caught off guard</span> by a toll again.</h1>
+          <p class="lede">TollSense tells you which plaza is coming up and <strong>exactly what it costs</strong> — announced out loud, hands-free, before you reach the booth.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#notify">Notify me at launch →</a>
+            <a class="btn btn-ghost" href="#how">See how it works</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <!-- compact demo on desktop; populated by the shared scene template via JS -->
+          <div class="scene" data-scene></div>
+        </div>
+      </div>
+      <a class="scroll-cue" href="#how" aria-label="Scroll down">
+        Scroll
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </a>
+    </section>
+
+    <!-- ============ PANEL 2 — Icon comes to life ============ -->
+    <section class="panel panel-grad" id="how">
+      <div class="stage">
+        <h2>Your car talks to the toll — before you arrive.</h2>
+        <div class="scene" data-scene></div>
+        <p class="caption">As you approach, TollSense <strong>senses the plaza ahead</strong> and calls out its name, distance, and fare — so your eyes stay on the road and your wallet stays ready.</p>
+      </div>
+      <a class="scroll-cue" href="#notify" aria-label="Scroll down">
+        Get notified
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </a>
+    </section>
+
+    <!-- ============ PANEL 3 — Register interest ============ -->
+    <section class="panel panel-grad" id="notify">
+      <div class="cta-card">
+        <div class="signup-wrap" id="signupWrap">
+          <h2>Be <span class="hl">first in line</span> when TollSense goes live.</h2>
+          <p class="sub">Drop your email and we'll ping you the moment it's on the Play Store. No spam — one message, at launch.</p>
+
+          <!-- Hidden iframe target keeps the page from navigating on submit -->
+          <iframe name="hidden_iframe" id="hidden_iframe" style="display:none" title="hidden"></iframe>
+
+          <form class="signup" id="signupForm" method="post" target="hidden_iframe" novalidate>
+            <input type="email" id="emailInput" name="entry.PLACEHOLDER" placeholder="you@example.com" autocomplete="email" required aria-label="Email address" />
+            <button type="submit" class="btn btn-primary">Notify me</button>
+          </form>
+          <div class="form-msg" id="formMsg" role="status" aria-live="polite"></div>
+
+          <div class="success" id="successState">
+            <div class="check" aria-hidden="true">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h2 style="margin:0 0 8px">You're on the list! 🎉</h2>
+            <p class="sub" style="margin:0">Interest registered — we'll email you the moment TollSense hits the Play Store.</p>
+          </div>
+        </div>
+
+        <div class="feature-strip" aria-hidden="false">
+          <span class="chip">🔊 Hands-free voice alerts</span>
+          <span class="chip">📡 Works offline</span>
+          <span class="chip">🚗 Android Auto</span>
+          <span class="chip">🔒 Private by design</span>
+        </div>
+      </div>
+
+      <footer>
+        Built by Gaurav Thakkar · <a href="privacy.html">Privacy Policy</a> · <a href="mailto:thakkargaurav409@gmail.com">Contact</a>
+      </footer>
+    </section>
+
+  </main>
+
+  <!-- ============ Inline SVG scene template (cloned into every [data-scene]) ============ -->
+  <template id="sceneTpl">
+    <svg viewBox="0 0 400 300" role="img" aria-label="A car approaching a toll plaza while a sensing signal lights up and the fare is announced">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3A407A"/>
+          <stop offset="1" stop-color="#6779CA"/>
+        </linearGradient>
+        <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3a3f63"/>
+          <stop offset="1" stop-color="#23263f"/>
+        </linearGradient>
+      </defs>
+
+      <!-- backdrop -->
+      <rect x="0" y="0" width="400" height="300" fill="url(#sky)"/>
+
+      <!-- road -->
+      <rect x="0" y="190" width="400" height="110" fill="url(#road)"/>
+      <!-- centre lane (animated dashes) -->
+      <line class="lane" x1="0" y1="245" x2="400" y2="245" stroke="#BDF75B" stroke-width="4" stroke-opacity="0.55"/>
+
+      <!-- toll plaza gantry on the right -->
+      <g>
+        <!-- posts -->
+        <rect x="296" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
+        <rect x="360" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
+        <!-- amber-roofed canopy -->
+        <rect x="286" y="104" width="94" height="22" rx="6" fill="#FF6F00"/>
+        <rect x="286" y="120" width="94" height="6" fill="#8a3d00" opacity="0.5"/>
+        <!-- booth -->
+        <rect x="318" y="150" width="30" height="50" rx="4" fill="#DFDEEB"/>
+        <rect x="324" y="158" width="18" height="14" rx="2" fill="#6779CA"/>
+      </g>
+
+      <!-- sensing arcs radiating from the gantry (origin ~300,150) -->
+      <g fill="none" stroke="#BDF75B" stroke-width="4" stroke-linecap="round">
+        <circle class="wave w1" cx="300" cy="150" r="26"/>
+        <circle class="wave w2" cx="300" cy="150" r="44"/>
+        <circle class="wave w3" cx="300" cy="150" r="62"/>
+      </g>
+
+      <!-- car (drives left→right) -->
+      <g class="car">
+        <ellipse cx="120" cy="232" rx="46" ry="7" fill="#000" opacity="0.18"/>
+        <!-- body -->
+        <path d="M74 224 q4 -26 26 -30 l28 -2 q18 0 28 16 l14 2 q10 2 10 12 l0 4 q0 6 -8 6 l-108 0 q-8 0 -8 -8 z" fill="#F4F5FB"/>
+        <!-- cabin -->
+        <path d="M104 196 l24 -2 q12 0 18 10 l-46 2 z" fill="#9aa6e0"/>
+        <!-- headlight -->
+        <circle cx="178" cy="214" r="3.4" fill="#FFE08a"/>
+        <!-- wheels -->
+        <circle cx="98" cy="232" r="11" fill="#1E262D"/><circle cx="98" cy="232" r="4.5" fill="#9aa6e0"/>
+        <circle cx="152" cy="232" r="11" fill="#1E262D"/><circle cx="152" cy="232" r="4.5" fill="#9aa6e0"/>
+      </g>
+
+      <!-- fare alert card -->
+      <g class="fare">
+        <rect x="150" y="40" width="170" height="58" rx="12" fill="#1E262D" opacity="0.92"/>
+        <rect x="150" y="40" width="6" height="58" rx="3" fill="#BDF75B"/>
+        <text x="168" y="64" fill="#FFFFFF" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="700">Khalapur Toll</text>
+        <text x="168" y="84" fill="#BDF75B" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="14" font-weight="700">₹240 · 2 km ahead</text>
+      </g>
+    </svg>
+  </template>
+
+  <script>
+    /* ============================================================
+       GOOGLE FORM SETUP — paste your two values below.
+       1. Create a Google Form with ONE short-answer "email" question.
+       2. ACTION  = the form URL with /viewform replaced by /formResponse
+       3. ENTRY   = open "Get pre-filled link", fill a sample, copy the link,
+                    and find the entry.<digits> for the email field.
+       Until both are set, the form still shows success but stores nothing.
+       ============================================================ */
+    const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/REPLACE_WITH_FORM_ID/formResponse";
+    const EMAIL_ENTRY_ID     = "entry.REPLACE_WITH_FIELD_ID";
+
+    /* --- Clone the SVG scene into every [data-scene] slot --- */
+    (function mountScenes() {
+      const tpl = document.getElementById("sceneTpl");
+      document.querySelectorAll("[data-scene]").forEach(slot => {
+        slot.appendChild(tpl.content.cloneNode(true));
+      });
+    })();
+
+    /* --- Wire the email form to the Google Form endpoint --- */
+    (function wireForm() {
+      const form  = document.getElementById("signupForm");
+      const input = document.getElementById("emailInput");
+      const msg   = document.getElementById("formMsg");
+      const wrap  = document.getElementById("signupWrap");
+
+      const configured = !GOOGLE_FORM_ACTION.includes("REPLACE_WITH") && !EMAIL_ENTRY_ID.includes("REPLACE_WITH");
+      if (configured) {
+        form.action = GOOGLE_FORM_ACTION;
+        input.name  = EMAIL_ENTRY_ID;
+      } else {
+        console.warn("[TollSense] Google Form not configured — set GOOGLE_FORM_ACTION & EMAIL_ENTRY_ID. Submissions won't be stored yet.");
+      }
+
+      const valid = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+
+      form.addEventListener("submit", (e) => {
+        if (!valid(input.value)) {
+          e.preventDefault();
+          msg.textContent = "Please enter a valid email address.";
+          msg.className = "form-msg error";
+          input.focus();
+          return;
+        }
+        // Valid: let the POST fire into the hidden iframe (no navigation),
+        // then optimistically show success. (Google Forms blocks reading the
+        // response via CORS, but the row reliably lands in your Sheet.)
+        if (!configured) e.preventDefault();
+        msg.textContent = "";
+        msg.className = "form-msg";
+        wrap.classList.add("done");
+      });
+    })();
+
+    /* --- Run scene animations only while a panel is on screen --- */
+    (function observePanels() {
+      const panels = document.querySelectorAll(".panel");
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => en.target.classList.toggle("in-view", en.isIntersecting));
+      }, { threshold: 0.35 });
+      panels.forEach(p => io.observe(p));
+    })();
+  </script>
+</body>
+</html>
