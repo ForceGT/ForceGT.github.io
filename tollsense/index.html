@@ -149,7 +149,8 @@
     }
     .btn-ghost:hover { border-color: var(--lime); color: var(--lime); }
 
-    .hero-art { display: none; } /* hidden on mobile; revealed on desktop */
+    .hero-art { display: flex; justify-content: center; } /* animation is the hook on every screen */
+    .hero-art .scene { max-width: 340px; } /* bounded on mobile so the hero fits one viewport */
 
     /* Scroll cue */
     .scroll-cue {
@@ -161,7 +162,7 @@
     .scroll-cue svg { animation: bob 1.8s ease-in-out infinite; }
     @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
-    /* ---------- The animated scene (shared by hero-art + panel 2) ---------- */
+    /* ---------- The animated scene (the page-1 hook) ---------- */
     .scene {
       width: 100%;
       max-width: 520px;
@@ -238,41 +239,6 @@
     .cta-card h2 .hl { color: var(--lime); }
     .cta-card p.sub { color: rgba(255,255,255,0.82); margin: 0 0 30px; font-size: clamp(1rem, 2.6vw, 1.2rem); }
 
-    form.signup {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.16);
-      padding: 10px; border-radius: 999px;
-      max-width: 480px; margin: 0 auto;
-      transition: border-color .2s ease;
-    }
-    form.signup:focus-within { border-color: var(--lime); }
-    form.signup input[type="email"] {
-      flex: 1 1 200px; min-width: 0;
-      background: transparent; border: 0; outline: none;
-      color: var(--white); font-size: 1.02rem; padding: 12px 18px;
-    }
-    form.signup input::placeholder { color: rgba(255,255,255,0.5); }
-    form.signup button { flex: 0 0 auto; }
-
-    .form-msg {
-      margin: 16px auto 0; min-height: 22px;
-      font-size: 0.95rem; font-weight: 600;
-    }
-    .form-msg.error { color: #ffb4a8; }
-    .form-msg.ok { color: var(--lime); }
-
-    /* Success state */
-    .success { display: none; }
-    .success .check {
-      width: 64px; height: 64px; margin: 0 auto 18px;
-      border-radius: 50%; background: var(--lime); color: var(--ink);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .signup-wrap.done form.signup,
-    .signup-wrap.done .form-msg { display: none; }
-    .signup-wrap.done .success { display: block; }
-
     .feature-strip {
       display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
       margin-top: 30px;
@@ -293,10 +259,88 @@
     footer a { color: rgba(255,255,255,0.85); text-decoration: none; }
     footer a:hover { color: var(--lime); }
 
-    /* ---------- Desktop: hero shows the live demo beside the copy ---------- */
+    /* ---------- Panel 2: How it works ---------- */
+    .panel-tall { justify-content: flex-start; overflow: visible; padding-top: clamp(80px, 14vh, 130px); padding-bottom: 64px; }
+    .how-inner {
+      width: 100%; max-width: var(--maxw);
+      display: grid; grid-template-columns: 1fr; gap: clamp(28px, 5vw, 56px);
+      align-items: center;
+    }
+    .how-steps h2 {
+      font-size: clamp(1.7rem, 5vw, 2.7rem); margin: 0 0 26px;
+      letter-spacing: -0.02em; font-weight: 850; line-height: 1.08;
+    }
+    .how-steps h2 .hl { color: var(--lime); }
+    .steps { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+    .steps li { display: flex; gap: 15px; align-items: flex-start; }
+    .step-ic {
+      flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(189,247,91,0.12); border: 1px solid rgba(189,247,91,0.4);
+      color: var(--lime);
+    }
+    .step-tx h3 { margin: 0 0 2px; font-size: 1.06rem; font-weight: 800; }
+    .step-tx p { margin: 0; color: rgba(255,255,255,0.78); font-size: 0.95rem; line-height: 1.45; }
+    .step-n { color: var(--lime); font-weight: 850; margin-right: 7px; }
+    .how-tagline {
+      margin: 0; font-size: clamp(1.02rem, 2.6vw, 1.2rem); color: rgba(255,255,255,0.92);
+      border-left: 3px solid var(--lime); padding-left: 15px;
+    }
+
+    /* Phone simulation (re-skinned "Upcoming tolls") */
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone {
+      width: 100%; max-width: 280px;
+      background: #0e1220; border-radius: 36px; padding: 11px;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 36px 70px -24px rgba(0,0,0,0.65);
+    }
+    .phone-screen {
+      border-radius: 27px; overflow: hidden; padding-bottom: 16px;
+      background: linear-gradient(168deg, var(--navy) 0%, var(--navy-dark) 75%);
+    }
+    .phone-notch { width: 46px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.28); margin: 9px auto 4px; }
+    .phone-top { padding: 12px 16px 14px; }
+    .phone-top .app { display: flex; align-items: center; gap: 8px; font-weight: 850; font-size: 1.18rem; letter-spacing: -0.02em; }
+    .phone-top .app .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px rgba(189,247,91,0.25); }
+    .phone-top .sub2 { font-size: 0.72rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
+    .alert-list { padding: 0 14px; display: flex; flex-direction: column; gap: 11px; }
+    .alert { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 12px 13px; }
+    .alert .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .alert .name { font-weight: 700; font-size: 0.9rem; }
+    .alert .fare2 { font-weight: 850; color: var(--lime); font-size: 1.02rem; }
+    .alert .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 7px; }
+    .alert .dist { font-size: 0.78rem; color: rgba(255,255,255,0.58); }
+    .tag { font-size: 0.66rem; font-weight: 850; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px; }
+    .tag.urgent { background: rgba(255,111,0,0.2); color: #ffac63; border: 1px solid rgba(255,111,0,0.55); }
+    .tag.low { background: rgba(189,247,91,0.14); color: var(--lime); border: 1px solid rgba(189,247,91,0.4); }
+
+    /* ---------- Store badges (panel 3) ---------- */
+    .store-badges { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 0 0 22px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 11px;
+      background: #000; border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 14px; padding: 9px 16px; min-width: 165px;
+      text-decoration: none; color: #fff; position: relative;
+    }
+    .badge .bt { display: flex; flex-direction: column; line-height: 1.12; text-align: left; }
+    .badge .bt small { font-size: 0.58rem; opacity: 0.82; letter-spacing: 0.04em; text-transform: uppercase; }
+    .badge .bt b { font-size: 0.98rem; font-weight: 700; }
+    .badge .soon {
+      position: absolute; top: -9px; right: -7px;
+      font-size: 0.56rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase;
+      background: var(--lime); color: var(--ink); padding: 2px 8px; border-radius: 999px;
+    }
+    .badge.primary { border-color: var(--lime); box-shadow: 0 0 0 1px rgba(189,247,91,0.45), 0 12px 26px -12px rgba(189,247,91,0.5); }
+    .badge.disabled { opacity: 0.4; cursor: default; }
+    .badge.disabled .soon { background: rgba(255,255,255,0.55); }
+
+    /* ---------- Desktop ---------- */
     @media (min-width: 880px) {
       .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
-      .hero-art { display: flex; justify-content: center; }
+      .hero-art .scene { max-width: 460px; }
+      .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
+      .panel-tall { justify-content: center; padding-top: clamp(24px, 6vw, 64px); }
     }
 
     /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
@@ -320,11 +364,10 @@
     <section class="panel panel-grad" id="hero">
       <div class="hero-inner">
         <div>
-          <span class="eyebrow">● Coming soon to the Play Store</span>
           <h1>Never get <span class="hl">caught off guard</span> by a toll again.</h1>
-          <p class="lede">TollSense tells you which plaza is coming up and <strong>exactly what it costs</strong> — announced out loud, hands-free, before you reach the booth.</p>
+          <p class="lede">TollSense calls out the upcoming plaza and <strong>exactly what it costs</strong> — out loud and hands-free, so you keep your <span class="hl">eyes on the road and never reach for your phone</span> while driving.</p>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="#notify">Notify me at launch →</a>
+            <a class="btn btn-primary" href="https://forms.gle/JAiPkKyNhVt13Vjw6" target="_blank" rel="noopener noreferrer">Notify me at launch →</a>
             <a class="btn btn-ghost" href="#how">See how it works</a>
           </div>
         </div>
@@ -339,12 +382,55 @@
       </a>
     </section>
 
-    <!-- ============ PANEL 2 — Icon comes to life ============ -->
-    <section class="panel panel-grad" id="how">
-      <div class="stage">
-        <h2>Your car talks to the toll — before you arrive.</h2>
-        <div class="scene" data-scene></div>
-        <p class="caption">As you approach, TollSense <strong>senses the plaza ahead</strong> and calls out its name, distance, and fare — so your eyes stay on the road and your wallet stays ready.</p>
+    <!-- ============ PANEL 2 — How it works ============ -->
+    <section class="panel panel-grad panel-tall" id="how">
+      <div class="how-inner">
+        <div class="how-steps">
+          <h2>From highway to <span class="hl">heads-up</span> in seconds.</h2>
+          <ol class="steps">
+            <li>
+              <span class="step-ic" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l1.4-4.2A2 2 0 0 1 8.3 7.4h7.4a2 2 0 0 1 1.9 1.4L19 13"/><path d="M4 13h16v4a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-.5H7.5v.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M7 16h1M16 16h1"/></svg>
+              </span>
+              <span class="step-tx"><h3><span class="step-n">1</span>You drive</h3><p>TollSense runs quietly in the background — no tapping, no setup mid-drive.</p></span>
+            </li>
+            <li>
+              <span class="step-ic" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 7-7"/><path d="M8 12a4 4 0 0 1 4-4"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+              </span>
+              <span class="step-tx"><h3><span class="step-n">2</span>It senses the plaza ahead</h3><p>Detects upcoming toll plazas up to ~10 km before you reach them.</p></span>
+            </li>
+            <li>
+              <span class="step-ic" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5l4.5 3.5V6L8 9.5H4z"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18.5 7a7 7 0 0 1 0 10"/></svg>
+              </span>
+              <span class="step-tx"><h3><span class="step-n">3</span>It calls out the fare</h3><p>The plaza name, distance, and exact cost — announced out loud.</p></span>
+            </li>
+          </ol>
+          <p class="how-tagline">All of it hands-free — <strong>you never touch your phone while driving.</strong></p>
+        </div>
+
+        <div class="phone-wrap" aria-hidden="true">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="phone-top">
+                <div class="app"><span class="dot"></span>TollSense</div>
+                <div class="sub2">Upcoming tolls</div>
+              </div>
+              <div class="alert-list">
+                <div class="alert">
+                  <div class="row1"><span class="name">Khalapur Toll Plaza</span><span class="fare2">₹240</span></div>
+                  <div class="row2"><span class="dist">2 km ahead</span><span class="tag urgent">URGENT</span></div>
+                </div>
+                <div class="alert">
+                  <div class="row1"><span class="name">Kusgaon Toll Plaza</span><span class="fare2">₹160</span></div>
+                  <div class="row2"><span class="dist">16 km ahead</span><span class="tag low">LOW</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <a class="scroll-cue" href="#notify" aria-label="Scroll down">
         Get notified
@@ -355,26 +441,29 @@
     <!-- ============ PANEL 3 — Register interest ============ -->
     <section class="panel panel-grad" id="notify">
       <div class="cta-card">
-        <div class="signup-wrap" id="signupWrap">
+        <div class="cta-copy">
           <h2>Be <span class="hl">first in line</span> when TollSense goes live.</h2>
-          <p class="sub">Drop your email and we'll ping you the moment it's on the Play Store. No spam — one message, at launch.</p>
+          <p class="sub">Leave your email on our quick form and we'll ping you the moment it's on the Play Store. No spam — one message, at launch.</p>
 
-          <!-- Hidden iframe target keeps the page from navigating on submit -->
-          <iframe name="hidden_iframe" id="hidden_iframe" style="display:none" title="hidden"></iframe>
-
-          <form class="signup" id="signupForm" method="post" target="hidden_iframe" novalidate>
-            <input type="email" id="emailInput" name="entry.PLACEHOLDER" placeholder="you@example.com" autocomplete="email" required aria-label="Email address" />
-            <button type="submit" class="btn btn-primary">Notify me</button>
-          </form>
-          <div class="form-msg" id="formMsg" role="status" aria-live="polite"></div>
-
-          <div class="success" id="successState">
-            <div class="check" aria-hidden="true">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-            </div>
-            <h2 style="margin:0 0 8px">You're on the list! 🎉</h2>
-            <p class="sub" style="margin:0">Interest registered — we'll email you the moment TollSense hits the Play Store.</p>
+          <div class="store-badges">
+            <span class="badge primary" aria-label="Google Play — coming soon">
+              <span class="soon">Coming soon</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M4.3 2.6C4.1 2.8 4 3.1 4 3.5v17c0 .4.1.7.3.9l9.2-9.4-9.2-9.4zM14.7 12.9 5.9 22l11-6.3-2.2-2.8zM17.7 10.3l-2.6-1.5-2.5 3.2 2.5 3.2 2.6-1.5c1-.6 1-2.3 0-2.9 0-.2 0-.4 0-.5zM5.9 2l8.8 9.1 2.2-2.8L5.9 2z"/></svg>
+              <span class="bt"><small>GET IT ON</small><b>Google Play</b></span>
+            </span>
+            <span class="badge disabled" aria-disabled="true" aria-label="App Store — coming soon">
+              <span class="soon">Coming soon</span>
+              <svg width="20" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.7 1.3c.1 1-.3 2-.9 2.7-.7.8-1.8 1.4-2.8 1.3-.1-1 .4-2 1-2.6.7-.8 1.9-1.3 2.7-1.4zM19 17.2c-.5 1.1-.8 1.6-1.4 2.6-.9 1.4-2.1 3.1-3.6 3.1-1.3 0-1.7-.9-3.5-.9s-2.2.9-3.5.9c-1.5 0-2.6-1.5-3.5-3-2.4-3.8-2.7-8.2-1.2-10.6.9-1.2 2.3-1.9 3.6-1.9 1.3 0 2.2 1 3.4 1 1.1 0 1.8-1 3.4-1 1.1 0 2.3.6 3.2 1.7-2.8 1.6-2.4 5.6.1 6.6z"/></svg>
+              <span class="bt"><small>Coming soon to the</small><b>App Store</b></span>
+            </span>
+            <span class="badge disabled" aria-disabled="true" aria-label="Android Auto — coming soon">
+              <span class="soon">Coming soon</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M7.2 6.6 6.1 4.9a.45.45 0 0 1 .78-.45l1.1 1.72a7.2 7.2 0 0 1 8.04 0l1.1-1.72a.45.45 0 1 1 .78.45l-1.1 1.7A6.5 6.5 0 0 1 20 12.2H4a6.5 6.5 0 0 1 3.2-5.6zM9 10.2a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8zm6 0a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8z"/><rect x="4" y="13.4" width="16" height="6.6" rx="2.2"/></svg>
+              <span class="bt"><small>Works with</small><b>Android Auto</b></span>
+            </span>
           </div>
+
+          <a class="btn btn-primary" href="https://forms.gle/JAiPkKyNhVt13Vjw6" target="_blank" rel="noopener noreferrer">Join the waitlist →</a>
         </div>
 
         <div class="feature-strip" aria-hidden="false">
@@ -459,57 +548,11 @@
   </template>
 
   <script>
-    /* ============================================================
-       GOOGLE FORM SETUP — paste your two values below.
-       1. Create a Google Form with ONE short-answer "email" question.
-       2. ACTION  = the form URL with /viewform replaced by /formResponse
-       3. ENTRY   = open "Get pre-filled link", fill a sample, copy the link,
-                    and find the entry.<digits> for the email field.
-       Until both are set, the form still shows success but stores nothing.
-       ============================================================ */
-    const GOOGLE_FORM_ACTION = "https://docs.google.com/forms/d/e/REPLACE_WITH_FORM_ID/formResponse";
-    const EMAIL_ENTRY_ID     = "entry.REPLACE_WITH_FIELD_ID";
-
     /* --- Clone the SVG scene into every [data-scene] slot --- */
     (function mountScenes() {
       const tpl = document.getElementById("sceneTpl");
       document.querySelectorAll("[data-scene]").forEach(slot => {
         slot.appendChild(tpl.content.cloneNode(true));
-      });
-    })();
-
-    /* --- Wire the email form to the Google Form endpoint --- */
-    (function wireForm() {
-      const form  = document.getElementById("signupForm");
-      const input = document.getElementById("emailInput");
-      const msg   = document.getElementById("formMsg");
-      const wrap  = document.getElementById("signupWrap");
-
-      const configured = !GOOGLE_FORM_ACTION.includes("REPLACE_WITH") && !EMAIL_ENTRY_ID.includes("REPLACE_WITH");
-      if (configured) {
-        form.action = GOOGLE_FORM_ACTION;
-        input.name  = EMAIL_ENTRY_ID;
-      } else {
-        console.warn("[TollSense] Google Form not configured — set GOOGLE_FORM_ACTION & EMAIL_ENTRY_ID. Submissions won't be stored yet.");
-      }
-
-      const valid = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-
-      form.addEventListener("submit", (e) => {
-        if (!valid(input.value)) {
-          e.preventDefault();
-          msg.textContent = "Please enter a valid email address.";
-          msg.className = "form-msg error";
-          input.focus();
-          return;
-        }
-        // Valid: let the POST fire into the hidden iframe (no navigation),
-        // then optimistically show success. (Google Forms blocks reading the
-        // response via CORS, but the row reliably lands in your Sheet.)
-        if (!configured) e.preventDefault();
-        msg.textContent = "";
-        msg.className = "form-msg";
-        wrap.classList.add("done");
       });
     })();
 
