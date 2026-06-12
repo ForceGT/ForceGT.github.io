@@ -53,6 +53,7 @@
       position: relative;
       min-height: 100dvh;
       scroll-snap-align: start;
+      scroll-snap-stop: always;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -71,8 +72,8 @@
     /* Fixed brand wordmark */
     .brand {
       position: fixed;
-      top: clamp(16px, 3vw, 24px);
-      left: clamp(16px, 4vw, 32px);
+      top: calc(env(safe-area-inset-top, 0px) + clamp(16px, 3vw, 24px));
+      left: calc(env(safe-area-inset-left, 0px) + clamp(16px, 4vw, 32px));
       z-index: 20;
       display: flex;
       align-items: center;
@@ -287,14 +288,61 @@
       border-left: 3px solid var(--lime); padding-left: 15px;
     }
 
-    /* Phone simulation (re-skinned "Upcoming tolls") */
-    .phone-wrap { display: flex; justify-content: center; }
+    /* How-it-works device cluster: Android Auto head unit + companion phone */
+    .how-art { position: relative; width: 100%; max-width: 430px; margin: 0 auto; padding: 6px 6px 30px; }
+
+    .headunit {
+      position: relative; background: #0b0e18; border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px; padding: 10px; box-shadow: 0 40px 75px -28px rgba(0,0,0,0.72);
+    }
+    .hu-screen {
+      border-radius: 13px; overflow: hidden; min-height: 200px;
+      display: flex; flex-direction: column;
+      background: linear-gradient(165deg, var(--navy) 0%, var(--navy-dark) 82%);
+    }
+    .hu-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hu-app { display: flex; align-items: center; gap: 7px; font-weight: 850; font-size: 0.94rem; letter-spacing: -0.01em; }
+    .hu-app .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px rgba(189,247,91,0.22); }
+    .hu-aa { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+    .hu-alert { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 7px; justify-content: center; }
+    .hu-alert-top { display: flex; align-items: center; gap: 10px; }
+    .hu-tag { font-size: 0.62rem; font-weight: 850; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 999px; }
+    .hu-tag.urgent { background: rgba(255,111,0,0.22); color: #ffac63; border: 1px solid rgba(255,111,0,0.55); }
+    .hu-dist { font-size: 0.76rem; color: rgba(255,255,255,0.6); }
+    .hu-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.01em; }
+    .hu-fare { font-size: 2.1rem; font-weight: 850; color: var(--lime); line-height: 1; }
+    .hu-nav { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 10px 0 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .hu-nav span { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.1); }
+    .hu-nav span.lime { background: rgba(189,247,91,0.22); border: 1px solid rgba(189,247,91,0.5); }
+
+    /* Companion phone floats over the head unit's lower-right corner */
     .phone {
       width: 100%; max-width: 280px;
       background: #0e1220; border-radius: 36px; padding: 11px;
       border: 1px solid rgba(255,255,255,0.16);
       box-shadow: 0 36px 70px -24px rgba(0,0,0,0.65);
     }
+    .how-art .phone {
+      position: absolute; right: -8px; bottom: -4px; z-index: 2;
+      width: 39%; max-width: 158px; margin: 0;
+      border-radius: 26px; padding: 7px; transform: rotate(2.5deg);
+    }
+    .how-art .phone-screen { border-radius: 20px; padding-bottom: 12px; }
+    .how-art .phone-notch { width: 32px; height: 4px; margin: 6px auto 2px; }
+    .how-art .phone-top { padding: 9px 11px; }
+    .how-art .phone-top .app { font-size: 0.84rem; gap: 6px; }
+    .how-art .phone-top .app .dot { width: 7px; height: 7px; }
+    .how-art .phone-top .sub2 { font-size: 0.58rem; margin-top: 2px; }
+    .how-art .alert-list { padding: 0 9px; gap: 7px; }
+    .how-art .alert { padding: 8px 9px; border-radius: 10px; }
+    .how-art .alert .name { font-size: 0.66rem; }
+    .how-art .alert .fare2 { font-size: 0.76rem; }
+    .how-art .alert .row2 { margin-top: 5px; }
+    .how-art .alert .dist { font-size: 0.58rem; }
+    .how-art .alert .tag { font-size: 0.5rem; padding: 2px 6px; }
     .phone-screen {
       border-radius: 27px; overflow: hidden; padding-bottom: 16px;
       background: linear-gradient(168deg, var(--navy) 0%, var(--navy-dark) 75%);
@@ -355,7 +403,7 @@
       content: ""; flex: 0 0 calc((100% - var(--card)) / 2);
     }
     .phase {
-      flex: 0 0 var(--card); scroll-snap-align: center;
+      flex: 0 0 var(--card); scroll-snap-align: center; scroll-snap-stop: always;
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
       border-radius: var(--radius); padding: 24px 22px;
       display: flex; flex-direction: column;
@@ -492,7 +540,27 @@
           <p class="how-tagline">All of it hands-free — <strong>you never touch your phone while driving.</strong></p>
         </div>
 
-        <div class="phone-wrap" aria-hidden="true">
+        <div class="how-art" aria-hidden="true">
+          <!-- Android Auto head unit — the in-car display the driver glances at -->
+          <div class="headunit">
+            <div class="hu-screen">
+              <div class="hu-bar">
+                <span class="hu-app"><span class="dot"></span>TollSense</span>
+                <span class="hu-aa">Android&nbsp;Auto</span>
+              </div>
+              <div class="hu-alert">
+                <div class="hu-alert-top">
+                  <span class="hu-tag urgent">URGENT</span>
+                  <span class="hu-dist">2 km ahead</span>
+                </div>
+                <div class="hu-name">Khalapur Toll Plaza</div>
+                <div class="hu-fare">₹240</div>
+              </div>
+              <div class="hu-nav"><span></span><span class="lime"></span><span></span></div>
+            </div>
+          </div>
+
+          <!-- Companion phone — the full list of upcoming tolls and their priorities -->
           <div class="phone">
             <div class="phone-screen">
               <div class="phone-notch"></div>
