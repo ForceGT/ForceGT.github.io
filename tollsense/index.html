@@ -176,42 +176,59 @@
     }
     .scene svg { width: 100%; height: 100%; display: block; }
 
-    /* Car drives toward the plaza */
-    .car { animation: drive 6s ease-in-out infinite; animation-play-state: paused; }
+    /* The scene runs as a 7.5s loop: drive in → beep from the car → push into
+       the car → reveal the alert on Android Auto → hold → loop. */
+
+    /* Camera A (wide shot): holds, then the camera pushes into the car & fades. */
+    .camA { transform-box: fill-box; transform-origin: 30% 70%; animation: camA 7.5s ease-in-out infinite; animation-play-state: paused; }
+    @keyframes camA {
+      0%, 46%   { opacity: 1; transform: scale(1); }
+      58%       { opacity: 0; transform: scale(1.7); }
+      90%       { opacity: 0; transform: scale(1.7); }
+      91%, 99%  { opacity: 0; transform: scale(1); }   /* reset scale while hidden */
+      100%      { opacity: 1; transform: scale(1); }    /* fade back in for the loop */
+    }
+
+    /* Camera B (Android Auto close-up): zooms in as Camera A pushes through. */
+    .camB { transform-box: fill-box; transform-origin: center; opacity: 0; animation: camB 7.5s ease-in-out infinite; animation-play-state: paused; }
+    @keyframes camB {
+      0%, 48%   { opacity: 0; transform: scale(0.72); }
+      60%, 86%  { opacity: 1; transform: scale(1); }
+      94%, 100% { opacity: 0; transform: scale(0.72); }
+    }
+
+    /* Car drives in to the plaza, dwells, then resets while hidden. */
+    .car { animation: drive 7.5s ease-in-out infinite; animation-play-state: paused; }
     @keyframes drive {
-      0%   { transform: translateX(-150px); }
-      55%  { transform: translateX(0); }
-      72%  { transform: translateX(0); }     /* dwell at the plaza */
-      100% { transform: translateX(380px); }  /* pass through & exit */
+      0%   { transform: translateX(-160px); }
+      28%  { transform: translateX(0); }
+      90%  { transform: translateX(0); }       /* dwell (hidden after 58%) */
+      91%, 100% { transform: translateX(-160px); } /* snap reset while hidden */
     }
 
-    /* Sensing arcs "light up" as the car nears */
-    .wave { transform-origin: 300px 150px; opacity: 0; animation: ping 6s ease-out infinite; animation-play-state: paused; }
+    /* Sensing arcs "beep" forward from the car as it nears the plaza. */
+    .wave { transform-box: fill-box; transform-origin: 0% 100%; opacity: 0; animation: ping 7.5s ease-out infinite; animation-play-state: paused; }
     .wave.w1 { animation-delay: 0s; }
-    .wave.w2 { animation-delay: .28s; }
-    .wave.w3 { animation-delay: .56s; }
+    .wave.w2 { animation-delay: .2s; }
+    .wave.w3 { animation-delay: .4s; }
     @keyframes ping {
-      0%, 30%   { opacity: 0; transform: scale(0.3); }
-      45%       { opacity: 0.9; }
-      70%, 100% { opacity: 0; transform: scale(1.1); }
+      0%, 16%   { opacity: 0; transform: scale(0.4); }
+      30%       { opacity: 0.95; }
+      46%, 100% { opacity: 0; transform: scale(1.15); }
     }
-
-    /* Fare alert card pops in when the car is near */
-    .fare { opacity: 0; transform-box: fill-box; transform-origin: center; animation: fare 6s ease-in-out infinite; animation-play-state: paused; }
-    @keyframes fare {
-      0%, 30%   { opacity: 0; transform: translateY(8px) scale(0.96); }
-      42%, 88%  { opacity: 1; transform: translateY(0) scale(1); }
-      96%, 100% { opacity: 0; transform: translateY(8px) scale(0.96); }
-    }
+    .emitter-dot { animation: dotpulse 7.5s ease-in-out infinite; animation-play-state: paused; }
+    @keyframes dotpulse { 0%, 14% { opacity: 0.45; } 30% { opacity: 1; } 50%, 100% { opacity: 0.45; } }
 
     /* Lane dashes scroll to imply motion */
     .lane { stroke-dasharray: 26 22; animation: lane 1.4s linear infinite; animation-play-state: paused; }
     @keyframes lane { to { stroke-dashoffset: -96; } }
 
     /* Animations run only when the panel is on-screen */
+    .in-view .camA,
+    .in-view .camB,
     .in-view .car,
     .in-view .wave,
-    .in-view .fare,
+    .in-view .emitter-dot,
     .in-view .lane { animation-play-state: running; }
 
     /* ---------- Panel 2 layout ---------- */
@@ -475,11 +492,13 @@
     /* ---------- Reduced motion: freeze on the "alert" end-state ---------- */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .car { animation: none; transform: translateX(0); }
-      .wave { animation: none; opacity: 0.55; }
       .phase { transition: none; }
-      .wave.w3 { opacity: 0; }
-      .fare { animation: none; opacity: 1; transform: none; }
+      /* Static frame: the wide scene with the car sensing the plaza. */
+      .camA { animation: none; opacity: 1; transform: none; }
+      .camB { animation: none; opacity: 0; }
+      .car { animation: none; transform: translateX(0); }
+      .wave { animation: none; opacity: 0.5; transform: none; }
+      .emitter-dot { animation: none; opacity: 1; }
       .lane { animation: none; }
       .scroll-cue svg { animation: none; }
     }
@@ -615,6 +634,19 @@
               <span class="phase-node">2</span>
               <span class="phase-badge">Planned</span>
             </div>
+            <h3>Annual pass check</h3>
+            <ul>
+              <li>Know if your <strong>NHAI annual pass</strong> covers the upcoming plaza</li>
+              <li>National highway vs. state toll — flagged before you arrive</li>
+              <li>No pulling over to check where it actually works</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <div class="phase-head">
+              <span class="phase-node">3</span>
+              <span class="phase-badge">Planned</span>
+            </div>
             <h3>FasTag integration</h3>
             <ul>
               <li>Link your FasTag to see your live balance</li>
@@ -625,7 +657,7 @@
 
           <article class="phase">
             <div class="phase-head">
-              <span class="phase-node">3</span>
+              <span class="phase-node">4</span>
               <span class="phase-badge">On the roadmap</span>
             </div>
             <h3>Automation &amp; auto-recharge</h3>
@@ -641,6 +673,7 @@
           <button class="dot active" type="button" aria-label="Phase 1"></button>
           <button class="dot" type="button" aria-label="Phase 2"></button>
           <button class="dot" type="button" aria-label="Phase 3"></button>
+          <button class="dot" type="button" aria-label="Phase 4"></button>
         </div>
       </div>
       <a class="scroll-cue" href="#notify" aria-label="Scroll down">
@@ -694,7 +727,7 @@
 
   <!-- ============ Inline SVG scene template (cloned into every [data-scene]) ============ -->
   <template id="sceneTpl">
-    <svg viewBox="0 0 400 300" role="img" aria-label="A car approaching a toll plaza while a sensing signal lights up and the fare is announced">
+    <svg viewBox="0 0 400 300" role="img" aria-label="A car drives toward a toll plaza; TollSense senses it from the car, then the view zooms in to show the fare alert on the car's Android Auto screen">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#3A407A"/>
@@ -704,56 +737,68 @@
           <stop offset="0" stop-color="#3a3f63"/>
           <stop offset="1" stop-color="#23263f"/>
         </linearGradient>
+        <clipPath id="huClip"><rect x="92" y="80" width="216" height="150" rx="11"/></clipPath>
       </defs>
 
-      <!-- backdrop -->
-      <rect x="0" y="0" width="400" height="300" fill="url(#sky)"/>
+      <!-- ============ Camera A — wide shot: the car senses the plaza ============ -->
+      <g class="camA">
+        <rect x="0" y="0" width="400" height="300" fill="url(#sky)"/>
+        <rect x="0" y="190" width="400" height="110" fill="url(#road)"/>
+        <line class="lane" x1="0" y1="245" x2="400" y2="245" stroke="#BDF75B" stroke-width="4" stroke-opacity="0.55"/>
 
-      <!-- road -->
-      <rect x="0" y="190" width="400" height="110" fill="url(#road)"/>
-      <!-- centre lane (animated dashes) -->
-      <line class="lane" x1="0" y1="245" x2="400" y2="245" stroke="#BDF75B" stroke-width="4" stroke-opacity="0.55"/>
+        <!-- toll plaza gantry on the right -->
+        <g>
+          <rect x="296" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
+          <rect x="360" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
+          <rect x="286" y="104" width="94" height="22" rx="6" fill="#FF6F00"/>
+          <rect x="286" y="120" width="94" height="6" fill="#8a3d00" opacity="0.5"/>
+          <rect x="318" y="150" width="30" height="50" rx="4" fill="#DFDEEB"/>
+          <rect x="324" y="158" width="18" height="14" rx="2" fill="#6779CA"/>
+        </g>
 
-      <!-- toll plaza gantry on the right -->
-      <g>
-        <!-- posts -->
-        <rect x="296" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
-        <rect x="360" y="120" width="10" height="80" rx="3" fill="#2A2E5C"/>
-        <!-- amber-roofed canopy -->
-        <rect x="286" y="104" width="94" height="22" rx="6" fill="#FF6F00"/>
-        <rect x="286" y="120" width="94" height="6" fill="#8a3d00" opacity="0.5"/>
-        <!-- booth -->
-        <rect x="318" y="150" width="30" height="50" rx="4" fill="#DFDEEB"/>
-        <rect x="324" y="158" width="18" height="14" rx="2" fill="#6779CA"/>
+        <!-- car (drives left→right), with TollSense sensing FROM the car -->
+        <g class="car">
+          <ellipse cx="120" cy="232" rx="46" ry="7" fill="#000" opacity="0.18"/>
+          <path d="M74 224 q4 -26 26 -30 l28 -2 q18 0 28 16 l14 2 q10 2 10 12 l0 4 q0 6 -8 6 l-108 0 q-8 0 -8 -8 z" fill="#F4F5FB"/>
+          <path d="M104 196 l24 -2 q12 0 18 10 l-46 2 z" fill="#9aa6e0"/>
+          <circle cx="178" cy="214" r="3.4" fill="#FFE08a"/>
+          <circle cx="98" cy="232" r="11" fill="#1E262D"/><circle cx="98" cy="232" r="4.5" fill="#9aa6e0"/>
+          <circle cx="152" cy="232" r="11" fill="#1E262D"/><circle cx="152" cy="232" r="4.5" fill="#9aa6e0"/>
+
+          <!-- TollSense emitter on the roof: arcs ping forward (the "beep") -->
+          <g class="emitter" fill="none" stroke="#BDF75B" stroke-width="3.4" stroke-linecap="round">
+            <path class="wave w1" d="M150 184 a 16 16 0 0 1 14 14"/>
+            <path class="wave w2" d="M150 176 a 24 24 0 0 1 22 22"/>
+            <path class="wave w3" d="M150 168 a 32 32 0 0 1 30 30"/>
+          </g>
+          <circle class="emitter-dot" cx="148" cy="190" r="3.6" fill="#BDF75B"/>
+        </g>
       </g>
 
-      <!-- sensing arcs radiating from the gantry (origin ~300,150) -->
-      <g fill="none" stroke="#BDF75B" stroke-width="4" stroke-linecap="round">
-        <circle class="wave w1" cx="300" cy="150" r="26"/>
-        <circle class="wave w2" cx="300" cy="150" r="44"/>
-        <circle class="wave w3" cx="300" cy="150" r="62"/>
-      </g>
-
-      <!-- car (drives left→right) -->
-      <g class="car">
-        <ellipse cx="120" cy="232" rx="46" ry="7" fill="#000" opacity="0.18"/>
-        <!-- body -->
-        <path d="M74 224 q4 -26 26 -30 l28 -2 q18 0 28 16 l14 2 q10 2 10 12 l0 4 q0 6 -8 6 l-108 0 q-8 0 -8 -8 z" fill="#F4F5FB"/>
-        <!-- cabin -->
-        <path d="M104 196 l24 -2 q12 0 18 10 l-46 2 z" fill="#9aa6e0"/>
-        <!-- headlight -->
-        <circle cx="178" cy="214" r="3.4" fill="#FFE08a"/>
-        <!-- wheels -->
-        <circle cx="98" cy="232" r="11" fill="#1E262D"/><circle cx="98" cy="232" r="4.5" fill="#9aa6e0"/>
-        <circle cx="152" cy="232" r="11" fill="#1E262D"/><circle cx="152" cy="232" r="4.5" fill="#9aa6e0"/>
-      </g>
-
-      <!-- fare alert card -->
-      <g class="fare">
-        <rect x="150" y="40" width="170" height="58" rx="12" fill="#1E262D" opacity="0.92"/>
-        <rect x="150" y="40" width="6" height="58" rx="3" fill="#BDF75B"/>
-        <text x="168" y="64" fill="#FFFFFF" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="700">Khalapur Toll</text>
-        <text x="168" y="84" fill="#BDF75B" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="14" font-weight="700">₹240 · 2 km ahead</text>
+      <!-- ============ Camera B — close-up: the alert on Android Auto ============ -->
+      <g class="camB">
+        <rect x="0" y="0" width="400" height="300" fill="url(#sky)"/>
+        <!-- head unit frame -->
+        <rect x="84" y="72" width="232" height="166" rx="18" fill="#0b0e18" stroke="#ffffff22"/>
+        <rect x="92" y="80" width="216" height="150" rx="11" fill="#2A2E5C"/>
+        <g clip-path="url(#huClip)">
+          <rect x="92" y="80" width="216" height="150" fill="#343970"/>
+          <!-- top bar -->
+          <circle cx="106" cy="97" r="4" fill="#BDF75B"/>
+          <text x="116" y="101" fill="#FFFFFF" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="12" font-weight="800">TollSense</text>
+          <text x="300" y="100" text-anchor="end" fill="#ffffff80" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="7.5" font-weight="800" letter-spacing="0.5">ANDROID AUTO</text>
+          <line x1="92" y1="111" x2="308" y2="111" stroke="#ffffff14"/>
+          <!-- alert -->
+          <rect x="108" y="124" width="50" height="15" rx="7.5" fill="#FF6F0033" stroke="#FF6F0088"/>
+          <text x="133" y="135" text-anchor="middle" fill="#ffac63" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="8" font-weight="800">URGENT</text>
+          <text x="166" y="135" fill="#ffffff99" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="9">2 km ahead</text>
+          <text x="108" y="166" fill="#FFFFFF" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">Khalapur Toll Plaza</text>
+          <text x="108" y="197" fill="#BDF75B" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="26" font-weight="850">₹240</text>
+          <!-- nav strip -->
+          <circle cx="178" cy="216" r="6" fill="#ffffff1a"/>
+          <circle cx="200" cy="216" r="6" fill="#BDF75B33" stroke="#BDF75B88"/>
+          <circle cx="222" cy="216" r="6" fill="#ffffff1a"/>
+        </g>
       </g>
     </svg>
   </template>
