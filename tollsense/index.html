@@ -67,15 +67,12 @@
         linear-gradient(155deg, var(--navy) 0%, var(--periwinkle) 100%);
     }
 
-    /* Fixed brand wordmark */
+    /* Brand wordmark — sits in the hero flow, above the headline */
     .brand {
-      position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + clamp(16px, 3vw, 24px));
-      left: calc(env(safe-area-inset-left, 0px) + clamp(16px, 4vw, 32px));
-      z-index: 20;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 9px;
+      margin-bottom: clamp(20px, 4vh, 36px);
       font-weight: 800;
       letter-spacing: -0.02em;
       font-size: 1.05rem;
@@ -503,14 +500,13 @@
   </style>
 </head>
 <body>
-  <a class="brand" href="#hero"><span class="dot"></span>TollSense</a>
-
   <main class="deck">
 
     <!-- ============ PANEL 1 — Problem + title ============ -->
     <section class="panel panel-grad" id="hero">
       <div class="hero-inner">
         <div>
+          <a class="brand" href="#hero"><span class="dot"></span>TollSense</a>
           <h1>Never get <span class="hl">caught off guard</span> by a toll again.</h1>
           <p class="lede">TollSense calls out the upcoming plaza and <strong>exactly what it costs</strong> — out loud and hands-free, so you keep your <span class="hl">eyes on the road and never reach for your phone</span> while driving.</p>
           <div class="hero-cta">
