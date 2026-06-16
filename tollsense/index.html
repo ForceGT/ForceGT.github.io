@@ -44,7 +44,7 @@
     .deck {
       height: 100dvh;
       overflow-y: scroll;
-      scroll-snap-type: y mandatory;
+      scroll-snap-type: y proximity; /* proximity so a tall panel's content stays scrollable on mobile; firmed to mandatory on desktop */
       scrollbar-width: none;
     }
     .deck::-webkit-scrollbar { display: none; }
@@ -278,7 +278,7 @@
     footer a:hover { color: var(--lime); }
 
     /* ---------- Panel 2: How it works ---------- */
-    .panel-tall { justify-content: flex-start; overflow: visible; padding-top: clamp(80px, 14vh, 130px); padding-bottom: 64px; }
+    .panel-tall { justify-content: flex-start; overflow: visible; padding-top: clamp(64px, 10vh, 104px); padding-bottom: 48px; }
     .how-inner {
       width: 100%; max-width: var(--maxw);
       display: grid; grid-template-columns: 1fr; gap: clamp(28px, 5vw, 56px);
@@ -462,6 +462,8 @@
 
     /* ---------- Desktop ---------- */
     @media (min-width: 880px) {
+      /* Desktop panels fit the viewport, so firm up the page snapping. */
+      .deck { scroll-snap-type: y mandatory; }
       .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
       .hero-art .scene { max-width: 460px; }
       .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
