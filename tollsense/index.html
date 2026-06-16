@@ -40,11 +40,11 @@
       text-rendering: optimizeLegibility;
     }
 
-    /* ---------- Scroll-snap shell ---------- */
+    /* ---------- Full-screen panels, free scrolling (no snap) ---------- */
     .deck {
       height: 100dvh;
       overflow-y: scroll;
-      scroll-snap-type: y proximity; /* proximity so a tall panel's content stays scrollable on mobile; firmed to mandatory on desktop */
+      scroll-behavior: smooth;
       scrollbar-width: none;
     }
     .deck::-webkit-scrollbar { display: none; }
@@ -52,8 +52,6 @@
     .panel {
       position: relative;
       min-height: 100dvh;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -462,8 +460,6 @@
 
     /* ---------- Desktop ---------- */
     @media (min-width: 880px) {
-      /* Desktop panels fit the viewport, so firm up the page snapping. */
-      .deck { scroll-snap-type: y mandatory; }
       .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
       .hero-art .scene { max-width: 460px; }
       .how-inner { grid-template-columns: 1.02fr 0.98fr; align-items: center; }
