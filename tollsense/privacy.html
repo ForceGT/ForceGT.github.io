@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TollSense — Privacy Policy</title>
-  <meta name="description" content="How the TollSense mobile and Android Auto app handles your information. Location is processed on-device for toll detection — never sold or shared." />
+  <meta name="description" content="How the TollSense mobile and Android Auto app handles your information. Location is processed on-device for toll detection; anonymous, opt-out analytics and crash reports help improve reliability. We never sell your data." />
   <meta name="theme-color" content="#343970" />
   <style>
     :root {
@@ -57,7 +57,7 @@
     <div class="card">
       <span class="pill">PRIVACY</span>
       <h1>Privacy Policy</h1>
-      <p class="meta">Last updated: <strong>11 June 2026</strong></p>
+      <p class="meta">Last updated: <strong>17 June 2026</strong></p>
 
       <p>This Privacy Policy explains how the <strong>TollSense</strong> mobile and Android Auto
       application ("the App", "we", "us") handles your information. By using the App you agree to
@@ -65,21 +65,34 @@
 
       <h2>1. The short version</h2>
       <p>TollSense uses your device's location to detect upcoming toll plazas and alert you while
-      you drive. All toll detection and distance calculations happen <strong>on your device</strong>.
-      We do <strong>not</strong> run our own servers, do <strong>not</strong> sell or share your
-      data, and do <strong>not</strong> use advertising or tracking SDKs.
-      <strong>TollSense never transmits your location off your device.</strong></p>
+      you drive. <strong>Toll detection and distance calculations happen entirely on your
+      device</strong>, and your precise location is never uploaded to us or to anyone else.</p>
+      <p>To keep the App reliable, we collect a small amount of <strong>anonymous usage and
+      crash-diagnostic data</strong> through Google Firebase (see section&nbsp;4). This data is
+      aggregated, contains no name or contact details, and can be <strong>turned off in
+      Settings</strong>. We do <strong>not</strong> sell your data and do <strong>not</strong> use
+      advertising SDKs.</p>
 
-      <h2>2. Information we access</h2>
+      <h2>2. Information we access and collect</h2>
       <ul>
-        <li><strong>Precise location (foreground &amp; background).</strong> Used to compute your
-        distance to toll plazas and to determine when you enter or exit a tolled highway. Location
-        is processed in real time on your device and is not retained beyond what is needed to
-        generate an alert.</li>
-        <li><strong>No account, no personal identifiers.</strong> TollSense does not ask you to
-        sign in and does not collect your name, email, contacts, phone number, or device
-        identifiers. (Joining the optional launch waitlist on our website is separate — see
-        section 11.)</li>
+        <li><strong>Precise location (foreground &amp; background).</strong> Used on your device to
+        compute your distance to toll plazas and to determine when you enter or exit a tolled
+        highway. Your precise coordinates are processed in real time on the device, are not
+        retained beyond what is needed to generate an alert, and are never transmitted off the
+        device.</li>
+        <li><strong>Anonymous analytics &amp; diagnostics.</strong> If telemetry is enabled, the App
+        sends Google Firebase a set of coarse, low-detail events (for example: monitoring started,
+        a toll alert fired or was passed, an approximate distance/fare <em>range</em>, GPS quality).
+        Continuous values are rounded into broad buckets before they ever leave the device, so no
+        exact location, route, speed, or fare is sent. Firebase also automatically associates this
+        data with an app-instance identifier and infers an approximate (city-level) location from
+        your IP address.</li>
+        <li><strong>Crash and performance logs.</strong> If a crash or error occurs, Google
+        Crashlytics receives a crash report with technical context (device model, OS version, app
+        state breadcrumbs) to help us fix it.</li>
+        <li><strong>No account, no contact details.</strong> TollSense does not ask you to sign in
+        and does not collect your name, email, contacts, or phone number. (Joining the optional
+        launch waitlist on our website is separate — see section&nbsp;13.)</li>
       </ul>
 
       <h2>3. Why we need background location</h2>
@@ -89,46 +102,89 @@
       active. A persistent notification is shown whenever monitoring is running, so you always
       know when location is in use.</p>
 
-      <h2>4. Data we collect and where it goes</h2>
+      <h2>4. Analytics and crash reporting (Google Firebase)</h2>
+      <p>We use <strong>Google Firebase Analytics</strong> and <strong>Firebase Crashlytics</strong>
+      to understand whether toll alerts are firing correctly in the real world and to diagnose
+      crashes. This helps us improve detection accuracy without asking you to report problems
+      manually.</p>
+      <ul>
+        <li>The data is <strong>anonymous and aggregated</strong>: numeric values are converted to
+        broad ranges (buckets) on your device, and we never set a user ID.</li>
+        <li>Your <strong>precise location is never sent</strong> to Firebase. Firebase does derive a
+        rough, city-level location from your IP address, as it does for any app that uses it.</li>
+        <li>Firebase is operated by Google as our data processor and is governed by
+        <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Google's
+        privacy and data-processing terms</a>.</li>
+        <li>You can <strong>turn all of this off</strong> at any time — see section&nbsp;9.</li>
+      </ul>
+
+      <h2>5. How location is used and where it goes</h2>
       <p>Toll detection and distance calculations happen entirely on your device. We do not store
       your location on any server we control, and we never sell or share it. Toll plaza and fare
       data is bundled with the App; it does not include any of your personal or location
       information.</p>
 
-      <h2>5. Address lookup</h2>
+      <h2>6. Address lookup</h2>
       <p>To display a human-readable place name (for example, the road or town you are near), the
       App uses the <strong>geocoding service built into your Android device</strong>. This lookup
       is handled by the operating system on your device; TollSense does not send your coordinates
       to any TollSense server or third-party service for this purpose. Because this geocoder is
       part of Android, its behaviour is governed by your device and operating-system provider.</p>
 
-      <h2>6. Permissions summary</h2>
+      <h2>7. Permissions summary</h2>
       <ul>
         <li><strong>Location</strong> — toll detection (described above).</li>
         <li><strong>Notifications</strong> — to display toll alerts and the monitoring status.</li>
         <li><strong>Foreground service</strong> — to keep toll monitoring running while driving.</li>
       </ul>
 
-      <h2>7. Data sharing and selling</h2>
-      <p>We do not share or sell any data, because we do not collect any off-device data to begin
-      with.</p>
+      <h2>8. Data sharing and processors</h2>
+      <p>We do <strong>not</strong> sell your data and we do <strong>not</strong> share it for
+      advertising. The only third party that receives any app data is <strong>Google Firebase
+      (Analytics &amp; Crashlytics)</strong>, which processes the anonymous analytics and crash data
+      described above on our behalf. We may also disclose information if required by law.</p>
 
-      <h2>8. Children</h2>
+      <h2>9. Your choices and data deletion</h2>
+      <ul>
+        <li><strong>Turn off telemetry.</strong> You can disable analytics and crash reporting at
+        any time from the App's <strong>Settings</strong> screen. When disabled, the App stops
+        collecting and sending this data.</li>
+        <li><strong>Location.</strong> You can revoke location permission in your device settings;
+        toll alerts will stop working, but no data leaves your device.</li>
+        <li><strong>Deletion.</strong> The analytics data we hold is anonymous and not tied to an
+        identifiable person. If you would like us to delete data associated with your app instance,
+        or your waitlist email, contact us at the address in section&nbsp;14 and we will action it.</li>
+      </ul>
+
+      <h2>10. Data retention</h2>
+      <p>Your precise location is held only momentarily in memory on your device to generate an
+      alert and is not stored afterwards. Anonymous analytics events are retained by Firebase
+      according to Google's standard retention period (up to 14 months), after which they are
+      automatically deleted. Crash reports are retained only as long as needed to diagnose and fix
+      issues.</p>
+
+      <h2>11. Security</h2>
+      <p>Data sent to Firebase is transmitted over encrypted (HTTPS/TLS) connections. Because
+      TollSense keeps your location on your device and collects no account or contact information in
+      the App, the amount of data that could be exposed is deliberately minimal.</p>
+
+      <h2>12. Children</h2>
       <p>TollSense is intended for drivers and is not directed at children under 13.</p>
 
-      <h2>9. Changes to this policy</h2>
-      <p>We may update this policy as the App evolves. Material changes will be reflected by the
-      "Last updated" date above.</p>
-
-      <h2>10. Launch waitlist (website)</h2>
+      <h2>13. Launch waitlist (website)</h2>
       <p>If you choose to join our launch waitlist on this website, your email address is collected
       through a <strong>Google Form</strong> and used solely to notify you once TollSense is
       available on the Play Store. That form is operated by Google and subject to Google's privacy
       policy. We do not add you to any other list, and you can ask us to delete your address at any
       time at the contact email below. This is entirely optional and separate from the App.</p>
 
-      <h2>11. Contact</h2>
-      <p>Questions about this policy, or want your waitlist email removed? Email
+      <h2>14. Changes to this policy</h2>
+      <p>We may update this policy as the App evolves. Material changes will be reflected by the
+      "Last updated" date above.</p>
+
+      <h2>15. Contact</h2>
+      <p>Questions about this policy, want telemetry data deleted, or want your waitlist email
+      removed? Email
       <a href="mailto:thakkargaurav409@gmail.com">thakkargaurav409@gmail.com</a>.</p>
     </div>
   </div>
