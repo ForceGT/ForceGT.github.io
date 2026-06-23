@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Backend base URL. Leave empty for local/same-origin (Express serves this
+       page). For GitHub Pages, set content to the Render URL, e.g.
+       https://fastag-api.onrender.com  (this is a public endpoint, not a secret). -->
+  <meta name="api-base" content="https://fastag-balance-api.onrender.com" />
+  <title>FASTag Balance</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://esm.run" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <style>
+    /* Material 3 design tokens (light) — a teal seed. Material Web reads these. */
+    :root {
+      --md-sys-color-primary: #00696e;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #6ff6ff;
+      --md-sys-color-on-primary-container: #002022;
+      --md-sys-color-surface: #fafdfc;
+      --md-sys-color-surface-container: #eef2f1;
+      --md-sys-color-on-surface: #191c1c;
+      --md-sys-color-on-surface-variant: #3f4948;
+      --md-sys-color-error: #ba1a1a;
+      --md-ref-typeface-brand: "Roboto", system-ui, sans-serif;
+      --md-ref-typeface-plain: "Roboto", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Roboto", system-ui, sans-serif;
+      background: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+    }
+    header {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 500; margin: 0; letter-spacing: .2px; }
+    header .sub { margin-left: auto; font-size: .8rem; opacity: .85; }
+    main { max-width: 460px; margin: 0 auto; padding: 24px 16px 64px; }
+    .card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .field { width: 100%; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .hint { font-size: .8rem; color: var(--md-sys-color-on-surface-variant); display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
+    .hint .title { font-weight: 500; }
+    .hint b { color: var(--md-sys-color-on-surface); font-weight: 600; font-family: ui-monospace, monospace; }
+    /* Searchable bank combobox — results render inline (push content down)
+       rather than as a floating overlay, so they can never cover the button. */
+    .combo { display: flex; flex-direction: column; }
+    .results {
+      margin: 6px 0 0; padding: 6px; list-style: none; background: var(--md-sys-color-surface);
+      border: 1px solid #c4c9c8; border-radius: 12px;
+      max-height: 240px; overflow-y: auto; display: none;
+    }
+    .results li {
+      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+      border-radius: 8px; cursor: pointer; font-size: .92rem;
+    }
+    .results li:hover, .results li.active { background: var(--md-sys-color-surface-container); }
+    .results li.empty { color: var(--md-sys-color-on-surface-variant); cursor: default; }
+    .actions { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+    #progress { display: none; }
+    #error {
+      display: none;
+      color: var(--md-sys-color-error);
+      background: #ffdad6;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: .9rem;
+    }
+    #result { display: none; margin-top: 20px; }
+    .result-head { display: flex; gap: 16px; align-items: flex-start; }
+    .logo-slot-lg { flex-shrink: 0; display: inline-flex; }
+    .balance-row { display: flex; align-items: baseline; gap: 8px; }
+    .balance-row .amount { font-size: 2.4rem; font-weight: 500; color: var(--md-sys-color-primary); }
+    .balance-row .cur { font-size: 1.4rem; color: var(--md-sys-color-on-surface-variant); }
+    .meta { color: var(--md-sys-color-on-surface-variant); font-size: .9rem; margin-top: 4px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border-radius: 8px; padding: 6px 12px; font-size: .82rem;
+    }
+    .qr {
+      margin-top: 22px; display: flex; flex-direction: column; align-items: center;
+      gap: 8px; padding-top: 20px; border-top: 1px solid #c4c9c8;
+    }
+    .qr img { width: 200px; height: 200px; border-radius: 12px; background: #fff; padding: 8px; }
+    .qr .vpa { font-family: ui-monospace, monospace; font-size: .85rem; }
+    .qr .cap { font-size: .82rem; color: var(--md-sys-color-on-surface-variant); }
+    .hot { color: var(--md-sys-color-error); font-weight: 500; }
+    .chip.cache { background: #d7e3ff; color: #001b3d; }
+  </style>
+  <script type="module">
+    import "https://esm.run/@material/web/all.js";
+    import { styles as typescale } from "https://esm.run/@material/web/typography/md-typescale-styles.js";
+    import QRCode from "https://esm.run/qrcode";
+    document.adoptedStyleSheets.push(typescale.styleSheet);
+
+    // Backend base URL from the <meta name="api-base">. Empty => same-origin
+    // (local dev, where Express serves this page). Set it to the Render URL when
+    // hosting the frontend on GitHub Pages.
+    const API_BASE = (document.querySelector('meta[name="api-base"]')?.content || "").replace(/\/+$/, "");
+    const api = (path) => `${API_BASE}${path}`;
+
+    // Mirror of server/src/utils/vehicle.js
+    const STANDARD = /^[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{1,4}$/;
+    const BH = /^\d{2}BH\d{4}[A-Z]{1,2}$/;
+    const normalize = (v) => (v || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const isValid = (v) => STANDARD.test(v) || BH.test(v);
+
+    const $ = (id) => document.getElementById(id);
+    const vehicleField = $("vehicle");
+    const bankField = $("bank");
+    const bankResults = $("bank-results");
+    const btn = $("check");
+    const progress = $("progress");
+    const errorBox = $("error");
+    const result = $("result");
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      result.style.display = "none";
+    }
+    function clearError() { errorBox.style.display = "none"; }
+
+    const bankLogos = {}; // bank name -> logo URL, for the result card
+    let allBanks = [];    // full list, loaded once; filtered client-side (no API calls)
+
+    // Build a logo visual: the real logo if we have one, else a colored initials
+    // badge derived from the bank name (deterministic, no network needed).
+    const GENERIC = new Set(["bank","fastag","netc","recharge","ltd","limited","pay",
+      "payments","technology","india","private","the","of","and","international",
+      "company","management","highways","corporation"]);
+    function placeholder(name) {
+      const words = name.replace(/\(.*?\)/g, "").replace(/[^A-Za-z\s]/g, " ")
+        .split(/\s+/).filter((w) => w && !GENERIC.has(w.toLowerCase()));
+      let initials =
+        words.length >= 2 ? words[0][0] + words[1][0]
+        : words.length === 1 ? words[0].slice(0, 2)
+        : name.slice(0, 2);
+      let h = 0;
+      for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+      return { initials: initials.toUpperCase(), color: `hsl(${h % 360} 45% 42%)` };
+    }
+    function logoNode(name, url, size) {
+      const px = size === "lg" ? 48 : 24;
+      const radius = size === "lg" ? 10 : 6;
+      if (url) {
+        const img = document.createElement("img");
+        img.src = url; img.alt = "";
+        img.style.cssText = `width:${px}px;height:${px}px;border-radius:${radius}px;` +
+          `object-fit:contain;background:#fff;padding:${size === "lg" ? 5 : 2}px;box-sizing:border-box;`;
+        return img;
+      }
+      const { initials, color } = placeholder(name);
+      const ph = document.createElement("div");
+      ph.textContent = initials;
+      ph.style.cssText = `width:${px}px;height:${px}px;border-radius:${radius}px;display:flex;` +
+        `align-items:center;justify-content:center;background:${color};color:#fff;` +
+        `font-weight:600;font-size:${size === "lg" ? 16 : 11}px;letter-spacing:.5px;`;
+      return ph;
+    }
+
+    // Load the bank list once; all filtering is done locally afterwards.
+    async function loadBanks() {
+      try {
+        const res = await fetch(api("/web/banks"));
+        const { banks } = await res.json();
+        allBanks = banks;
+        for (const b of banks) if (b.logo) bankLogos[b.name] = b.logo;
+      } catch {
+        showError("Couldn't load the bank list. Is the server running?");
+      }
+    }
+
+    // ---- Searchable bank combobox (client-side, debounced) ----
+    let activeIdx = -1; // keyboard highlight within the visible results
+
+    const debounce = (fn, ms) => {
+      let t;
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    };
+
+    function renderResults() {
+      const q = bankField.value.trim().toLowerCase();
+      const matches = q ? allBanks.filter((b) => b.name.toLowerCase().includes(q)) : allBanks;
+      activeIdx = -1;
+      bankResults.innerHTML = "";
+      if (matches.length === 0) {
+        const li = document.createElement("li");
+        li.className = "empty";
+        li.textContent = "No matching bank";
+        bankResults.appendChild(li);
+        bankResults.style.display = "block";
+        return;
+      }
+      for (const b of matches) {
+        const li = document.createElement("li");
+        li.setAttribute("role", "option");
+        const visual = logoNode(b.name, b.logo, "sm");
+        const span = document.createElement("span");
+        span.textContent = b.name;
+        li.append(visual, span);
+        // mousedown (not click) so selection runs before the field's blur.
+        li.addEventListener("mousedown", (e) => { e.preventDefault(); selectBank(b.name); });
+        bankResults.appendChild(li);
+      }
+      bankResults.style.display = "block";
+    }
+
+    function selectBank(name) {
+      bankField.value = name;
+      hideResults();
+    }
+    function hideResults() { bankResults.style.display = "none"; activeIdx = -1; }
+
+    function moveActive(delta) {
+      const items = [...bankResults.querySelectorAll("li:not(.empty)")];
+      if (!items.length) return;
+      activeIdx = (activeIdx + delta + items.length) % items.length;
+      items.forEach((el, i) => el.classList.toggle("active", i === activeIdx));
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    }
+
+    bankField.addEventListener("input", debounce(renderResults, 120));
+    bankField.addEventListener("focus", renderResults);
+    bankField.addEventListener("keydown", (e) => {
+      if (bankResults.style.display === "none") return;
+      const items = [...bankResults.querySelectorAll("li:not(.empty)")];
+      if (e.key === "ArrowDown") { e.preventDefault(); moveActive(1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); moveActive(-1); }
+      else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); selectBank(items[activeIdx].textContent); }
+      else if (e.key === "Escape") hideResults();
+    });
+    // Close when focus leaves the combobox.
+    $("bank").parentElement.addEventListener("focusout", (e) => {
+      if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget)) setTimeout(hideResults, 100);
+    });
+
+    async function check() {
+      clearError();
+      const vehicle = normalize(vehicleField.value);
+      vehicleField.value = vehicle;
+      if (!isValid(vehicle)) {
+        vehicleField.error = true;
+        vehicleField.errorText = "Enter a valid plate (e.g. KA01AB1234 or 21BH4567AA)";
+        return;
+      }
+      vehicleField.error = false;
+      const bankName = bankField.value.trim();
+      if (!bankName) { showError("Please choose a bank."); return; }
+      hideResults();
+
+      btn.disabled = true;
+      progress.style.display = "inline-flex";
+      try {
+        const res = await fetch(api("/web/balance"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vehicleNumber: vehicle, bankName }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 429) return showError("Too many requests — please wait a minute and try again.");
+          if (data.error === "bank_not_resolved")
+            return showError(`${data.message}${data.candidates ? ": " + data.candidates.join(", ") : ""}`);
+          if (data.error === "invalid_vehicle_number") return showError("That vehicle number isn't valid.");
+          if (data.error === "lookup_unsuccessful") return showError(`Lookup unsuccessful (status: ${data.status}).`);
+          if (data.error === "downstream_error") return showError("The upstream service is unavailable right now. Try again.");
+          return showError("Something went wrong. Please try again.");
+        }
+        await render(data);
+      } catch {
+        showError("Network error. Please try again.");
+      } finally {
+        btn.disabled = false;
+        progress.style.display = "none";
+      }
+    }
+
+    async function render(d) {
+      $("r-name").textContent = d.customerName || "—";
+      $("r-vehicle").textContent = d.vehicleNumber;
+      $("r-bank").textContent = d.bank;
+      $("r-balance").textContent = d.fastagBalance != null ? d.fastagBalance : "—";
+
+      const logoSlot = $("r-logo");
+      logoSlot.innerHTML = "";
+      logoSlot.appendChild(logoNode(d.bank, bankLogos[d.bank] || null, "lg"));
+
+      const chips = $("r-chips");
+      chips.innerHTML = "";
+      const addChip = (label, cls) => {
+        if (!label) return;
+        const c = document.createElement("span");
+        c.className = "chip" + (cls ? " " + cls : "");
+        c.textContent = label;
+        chips.appendChild(c);
+      };
+      if (d.maxRecharge) addChip(`Max recharge ₹${d.maxRecharge}`);
+      if (d.lastSyncedDate) addChip(`Synced ${d.lastSyncedDate}`);
+      const tagStatus = d.raw && (d.raw["Tag Status"] || d.raw["Status"]);
+      if (tagStatus) addChip(`Tag: ${tagStatus}`, /hot/i.test(tagStatus) ? "hot" : "");
+      // Cache outcome: fresh = a real Setu fetch; coalesced = shared an in-flight
+      // burst fetch; cached = within the ~1s coalescing window.
+      if (d.cacheState && d.cacheState !== "fresh") addChip(d.cacheState, "cache");
+
+      const qr = $("r-qr");
+      if (d.qrCode) {
+        const url = await QRCode.toDataURL(d.qrCode, { width: 220, margin: 1 });
+        $("r-qr-img").src = url;
+        $("r-vpa").textContent = d.vpa;
+        qr.style.display = "flex";
+      } else {
+        qr.style.display = "none";
+      }
+      result.style.display = "block";
+    }
+
+    btn.addEventListener("click", check);
+    vehicleField.addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });
+    loadBanks();
+  </script>
+</head>
+<body>
+  <header>
+    <h1>FASTag Balance</h1>
+    <span class="sub">POC</span>
+  </header>
+  <main>
+    <div class="card">
+      <div class="field-group">
+        <md-outlined-text-field
+          id="vehicle"
+          class="field"
+          label="Vehicle number"
+          placeholder="AB 12 CD 3456">
+        </md-outlined-text-field>
+        <div class="hint">
+          <span class="title">Supported formats</span>
+          <span>State series — e.g. <b>KA01AB1234</b></span>
+          <span>Bharat (BH) series — e.g. <b>21BH4567AA</b></span>
+        </div>
+      </div>
+
+      <div class="combo">
+        <md-outlined-text-field
+          id="bank"
+          class="field"
+          label="Issuing bank"
+          placeholder="Type to search…">
+        </md-outlined-text-field>
+        <ul id="bank-results" class="results" role="listbox"></ul>
+      </div>
+
+      <div id="error"></div>
+
+      <div class="actions">
+        <md-circular-progress id="progress" indeterminate></md-circular-progress>
+        <md-filled-button id="check">Check balance</md-filled-button>
+      </div>
+    </div>
+
+    <div id="result" class="card">
+      <div class="result-head">
+        <span id="r-logo" class="logo-slot-lg"></span>
+        <div>
+          <div class="balance-row">
+            <span class="cur">₹</span><span id="r-balance" class="amount">—</span>
+          </div>
+          <div class="meta"><span id="r-name">—</span> · <span id="r-vehicle"></span> · <span id="r-bank"></span></div>
+          <div id="r-chips" class="chips"></div>
+        </div>
+      </div>
+      <div id="r-qr" class="qr">
+        <img id="r-qr-img" alt="UPI recharge QR" />
+        <div class="cap">Scan with any UPI app to recharge</div>
+        <div id="r-vpa" class="vpa"></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
