@@ -1,0 +1,26 @@
+name: FASTag backend keep-alive
+
+# Pings the Render free-tier backend so it doesn't spin down after ~15 min idle
+# (a cold start makes the first request take ~50s and surfaces as a CORS error
+# in the browser, since Render's edge answers the preflight without CORS headers
+# while the service boots). This lives in the PUBLIC Pages repo on purpose:
+# GitHub Actions minutes are free/unlimited for public repos, but metered on
+# private ones. Note: GitHub's scheduler can run cron jobs several minutes late
+# under load, so an occasional cold start is still possible.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # every 10 minutes
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /health
+        run: |
+          code=$(curl -sS -m 90 -o /dev/null -w "%{http_code}" \
+            https://fastag-balance-api.onrender.com/health)
+          echo "health -> HTTP $code"
+          test "$code" = "200"
